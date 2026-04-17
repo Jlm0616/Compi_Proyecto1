@@ -1,0 +1,15 @@
+{- Este es un comentario multilínea
+   que abarca varias líneas
+   y será completamente ignorado -}
+
+__main__ ~ <| |> |:
+    ¡¡ Comentario de línea: declaración de variable
+    int ~ x <- 5 !
+
+    {- Comentario multilínea dentro del main -}
+    cout ~ "Hola mundo" !
+
+    ¡¡ Otro comentario de línea al final
+:|
+
+{- Comentario al final del archivo -}
