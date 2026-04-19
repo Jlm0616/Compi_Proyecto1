@@ -25,7 +25,7 @@ Cómo ejecutar
 
 1. Generar el lexer
 
-java -jar lib\jflex-full-1.9.1.jar lenguaje.flex# Compi_Proyecto1
+java -jar lib\jflex-full-1.9.1.jar lenguaje.flex
 
 2. Compilar
 
