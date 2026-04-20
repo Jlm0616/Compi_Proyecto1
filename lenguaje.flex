@@ -35,7 +35,7 @@ import java_cup.runtime.Symbol;
 
 /* ========== COMENTARIOS ========== */
 ComentarioLinea = "¡¡".*
-ComentarioBloque = "{-" [^-]* "-}"
+ComentarioBloque = "{-" ~"-}"
 
 /* ========== ESPACIOS EN BLANCO ========== */
 EspacioBlanco = [ \t\r\n]+
