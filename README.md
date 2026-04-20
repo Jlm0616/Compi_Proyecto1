@@ -1,27 +1,28 @@
-Proyecto #1 - Analizador Léxico
+# Proyecto #1 - Analizador Léxico y Sintáctico
 
-Descripción
-Analizador léxico para un lenguaje imperativo de configuración de chips, implementado con JFlex.
+## Descripción
+Analizador léxico y sintáctico para un lenguaje imperativo de configuración de chips, implementado con JFlex y CUP.
 
-Tecnologías
+## Tecnologías
 | Tecnología | Versión |
 |------------|---------|
 | Java | OpenJDK 25.0.2+10 |
 | JFlex | 1.9.1 |
 | CUP | 11b (20160615) |
 
-Archivos del proyecto
+## Archivos del proyecto
 
 | Archivo | Tipo | Descripción |
 |---------|------|-------------|
 | `lenguaje.flex` | Fuente | Especificación de tokens para JFlex |
+| `lenguaje.cup` | Fuente | Especificación de la gramática para CUP |
 | `sym.java` | Fuente | Constantes numéricas para cada token |
-| `TestLexer.java` | Fuente | Programa de prueba del lexer |
 | `prueba.txt` | Datos | Archivo de ejemplo para probar |
 | `lib/jflex-full-1.9.1.jar` | Herramienta | Generador de lexers JFlex |
 | `java-cup-11b-runtime.jar` | Librería | Runtime de CUP |
 
-Cómo ejecutar
+## Cómo ejecutar
+
 1. Generar el lexer
 
 java -jar lib\jflex-full-1.9.1.jar lenguaje.flex
