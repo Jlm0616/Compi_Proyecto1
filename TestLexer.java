@@ -13,7 +13,7 @@ public class TestLexer {
         System.out.println("=== TOKENS ENCONTRADOS ===\n");
         
         while ((token = lexer.next_token()).sym != sym.EOF) {
-            String nombre = sym.nombres[token.sym];
+            String nombre = sym.terminalNames[token.sym];  // ← CAMBIO: nombres → terminalNames
             String valor = token.value != null ? token.value.toString() : "";
             System.out.println("Token: " + nombre + "\tLexema: " + valor + "\tLinea: " + token.left);
         }

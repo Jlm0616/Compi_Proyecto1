@@ -1,15 +1,20 @@
-{- Este es un comentario multilínea
-   que abarca varias líneas
-   y será completamente ignorado -}
-
-__main__ ~ <| |> |:
-    ¡¡ Comentario de línea: declaración de variable
-    int ~ x <- 5 !
-
-    {- Comentario multilínea dentro del main -}
-    cout ~ "Hola mundo" !
-
-    ¡¡ Otro comentario de línea al final
+__main__ <| |> |:
+    int ~ x <- 5
+    int ~ y <- 10 !
+    int ~ resultado <- 0 !
+    
+    if less_t <| x , 10 |> |:
+        resultado <- x + y
+        cout ~ "Suma: " ~ resultado !
+    :| else |:
+        resultado <- x - y
+        cout ~ "Resta: " ~ resultado
+    :|
+    
+    do |:
+        x <- x + 1
+        cout ~ "Contador: " ~ x !
+    :| while ~ <| less_te <| x , 15 |> 
+    
+    cout ~ "Fin del programa"
 :|
-
-{- Comentario al final del archivo -}

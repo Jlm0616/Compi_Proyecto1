@@ -35,7 +35,7 @@ import java_cup.runtime.Symbol;
 
 /* ========== COMENTARIOS ========== */
 ComentarioLinea = "¡¡".*
-ComentarioBloque = "{-" [^-]* "-}"
+ComentarioBloque = "{-" [^]* "-}"
 
 /* ========== ESPACIOS EN BLANCO ========== */
 EspacioBlanco = [ \t\r\n]+
@@ -129,7 +129,6 @@ OpLogicoUnario = "$"
 {Cout}           { return symbol(sym.COUT, yytext()); }
 {True}           { return symbol(sym.BOOLEANO, Boolean.TRUE); }
 {False}          { return symbol(sym.BOOLEANO, Boolean.FALSE); }
-{Empty}          { return symbol(sym.EMPTY, yytext()); }
 {Equal}          { return symbol(sym.EQUAL, yytext()); }
 {NEqual}         { return symbol(sym.N_EQUAL, yytext()); }
 {LessT}          { return symbol(sym.LESS_T, yytext()); }
@@ -149,14 +148,14 @@ OpLogicoUnario = "$"
 {FinIndice}            { return symbol(sym.FIN_INDICE, yytext()); }
 {Coma}                 { return symbol(sym.COMA, yytext()); }
 {DosPuntos}            { return symbol(sym.DOS_PUNTOS, yytext()); }
-{Mas}                  { return symbol(sym.MAS, yytext()); }
-{Menos}                { return symbol(sym.MENOS, yytext()); }
 {Multiplicacion}       { return symbol(sym.MULTIPLICACION, yytext()); }
 {Division}             { return symbol(sym.DIVISION, yytext()); }
 {Modulo}               { return symbol(sym.MODULO, yytext()); }
 {Potencia}             { return symbol(sym.POTENCIA, yytext()); }
 {Incremento}           { return symbol(sym.INCREMENTO, yytext()); }
 {Decremento}           { return symbol(sym.DECREMENTO, yytext()); }
+{Mas}                  { return symbol(sym.MAS, yytext()); }
+{Menos}                { return symbol(sym.MENOS, yytext()); }
 {OpLogicoBinario}      { return symbol(sym.OPERADOR_LOGICO_BINARIO, yytext()); }
 {OpLogicoUnario}       { return symbol(sym.OPERADOR_LOGICO_UNARIO, yytext()); }
 
