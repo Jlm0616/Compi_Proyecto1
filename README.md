@@ -6,7 +6,7 @@ Analizador léxico y sintáctico para un lenguaje imperativo de configuración d
 ## Tecnologías
 | Tecnología | Versión |
 |------------|---------|
-| Java | OpenJDK 1.8.0_482 |
+| Java | OpenJDK 25.0.2+10 |
 | JFlex | 1.9.1 |
 | CUP | 11b (20160615) |
 
