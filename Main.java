@@ -66,13 +66,9 @@ public class Main {
             tablaWriter.println(String.format("%-15s %-10s %d", s.nombre, s.tipo, s.linea));
         }
         tablaWriter.close();
-        // ================================================================
         
         System.out.println("Tokens guardados en: tokens.txt");
         System.out.println("Tabla de simbolos guardada en: tabla_simbolos.txt");
-        
-        // Mostrar tabla en consola
-        tabla.imprimir();
         
         // Ejecutar el parser normalmente
         parser p = new parser(new Lexer(new FileReader(args[0])));
