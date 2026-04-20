@@ -1,5 +1,3 @@
-package compi;
-
 import java_cup.runtime.*;
 import java.io.*;
 
@@ -63,7 +61,7 @@ numero ::= NUMERO_ENTERO | NUMERO_FLOTANTE | NOTACION_CIENTIFICA | FRACCIONARIO 
 
 /* Main */
 programa ::= lista_funciones funcion_main ;
-funcion_main ::= PALABRA_MAIN INICIO_PARENTESIS FIN_PARENTESIS INICIO_BLOQUE contenido_programa FIN_BLOQUE ;
+funcion_main ::= PALABRA_MAIN SEPARADOR INICIO_PARENTESIS FIN_PARENTESIS INICIO_BLOQUE contenido_programa FIN_BLOQUE ;
 contenido_programa ::= lista_sentencias ;
 
 

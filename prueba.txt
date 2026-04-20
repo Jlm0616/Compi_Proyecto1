@@ -1,20 +1,20 @@
-__main__ <| |> |:
-    int ~ x <- 5
+__main__ ~ <| |> |:
+    int ~ x <- 5 !
     int ~ y <- 10 !
     int ~ resultado <- 0 !
     
-    if less_t <| x , 10 |> |:
-        resultado <- x + y
+    if ~ <| less_t<| x , 10 |> |> |:
+        resultado <- x + y !
         cout ~ "Suma: " ~ resultado !
-    :| else |:
-        resultado <- x - y
-        cout ~ "Resta: " ~ resultado
+    :| else ~ |:
+        resultado <- x - y !
+        cout ~ "Resta: " ~ resultado !
     :|
     
-    do |:
-        x <- x + 1
+    do ~ |:
+        x <- x + 1 !
         cout ~ "Contador: " ~ x !
-    :| while ~ <| less_te <| x , 15 |> 
+    :| while ~ <| less_te<| x , 15 |> |> !
     
-    cout ~ "Fin del programa"
+    cout ~ "Fin del programa" !
 :|
