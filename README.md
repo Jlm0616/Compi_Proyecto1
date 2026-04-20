@@ -29,15 +29,15 @@ java -jar lib\jflex-full-1.9.1.jar lenguaje.flex
 
 2. Compilar
 
-javac -cp ".;java-cup-11b-runtime.jar" *.java
+java -jar java-cup-11b.jar -parser parser -symbols sym lenguaje.cup
 
 3. Ejecutar prueba
 
-java -cp ".;java-cup-11b-runtime.jar" TestLexer prueba.txt
+javac -cp ".;java-cup-11b-runtime.jar" *.java
 
 4: Ejecutar prueba
 
-java -cp ".;lib\java-cup-11b-runtime.jar" Parser prueba.txt
+javac -cp ".;java-cup-11b-runtime.jar" *.java
 
 
 Por el momento se estara usando el tipo en vez de tipo_arreglo por diversos errores de duplicacion de conflictos en el sistema aun que en el archivo pide que unicamente se puede crear funciones con
