@@ -16,12 +16,14 @@ Analizador léxico y sintáctico para un lenguaje imperativo de configuración d
 |---------|------|-------------|
 | `lenguaje.flex` | Fuente | Especificación de tokens para JFlex |
 | `lenguaje.cup` | Fuente | Especificación de la gramática para CUP |
+| `Main.java` | Fuente | Programa principal con tabla de símbolos |
+| `TablaSimbolos.java` | Fuente | Clase para la tabla de símbolos |
 | `prueba.txt` | Datos | Archivo de ejemplo para probar |
 | `lib/jflex-full-1.9.1.jar` | Herramienta | Generador de lexers JFlex |
 | `java-cup-11b-runtime.jar` | Librería | Runtime de CUP |
 | `java-cup-11b.jar` | Herramienta | Generador de parser CUP |
 
-Cómo ejecutar
+## Cómo ejecutar
 
 1. Generar el lexer
 
@@ -37,4 +39,4 @@ javac -cp ".;java-cup-11b-runtime.jar" *.java
 
 4. Ejecutar prueba
 
-java -cp ".;lib\java-cup-11b-runtime.jar" Parser prueba.txt
+java -cp ".;java-cup-11b-runtime.jar" Main prueba.txt
