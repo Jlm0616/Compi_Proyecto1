@@ -1,55 +1,32 @@
 {- 
-    PROGRAMA DE PRUEBA - LENGUAJE DE CONFIGURACIÓN DE CHIPS
-    Este programa demuestra las siguientes características:
-    - Declaración de variables enteras
-    - Asignación de valores
-    - Estructura if-else con operador relacional less_t
-    - Estructura do-while con operador relacional less_te
-    - Sentencias cout para imprimir en consola
-    - Uso correcto del separador ~ y delimitador !
+    PROGRAMA DE PRUEBA - DIFERENTES NOMBRES DE VARIABLES
+    Se usan nombres como variable1, variable2, total, contador
 -}
 
 __main__ ~ <| |> |:
-    {- 
-        SECCIÓN 1: DECLARACIÓN DE VARIABLES
-        Se declaran tres variables de tipo entero con valores iniciales
-        Sintaxis: tipo ~ identificador <- valor !
-    -}
-    int ~ x <- 5 !          ¡¡ x = 5
-    int ~ y <- 10 !         ¡¡ y = 10
-    int ~ resultado <- 0 !  ¡¡ resultado = 0 (se usará para almacenar operaciones)
+    {- SECCION 1: DECLARACION DE VARIABLES -}
+    int ~ variable1 <- 5 !          ¡¡ variable1 = 5
+    int ~ variable2 <- 10 !         ¡¡ variable2 = 10
+    int ~ total <- 0 !              ¡¡ total = 0
+    int ~ contador <- 0 !           ¡¡ contador = 0
     
-    {- 
-        SECCIÓN 2: ESTRUCTURA IF-ELSE
-        Evalúa si x es menor que 10 (less_t = less than)
-        Si es verdadero: suma x + y
-        Si es falso: resta x - y
-        Sintaxis: if ~ <| condición |> |: ... :| else ~ |: ... :|
-    -}
-    if ~ <| less_t<| x , 10 |> |> |:
-        resultado <- x + y !                     ¡¡ Suma: 5 + 10 = 15
-        cout ~ "Suma: " ~ resultado !            ¡¡ Imprime "Suma: 15"
+    {- SECCION 2: SUMA -}
+    total <- variable1 + variable2 !
+    cout ~ "Total: " ~ total !
+    
+    {- SECCION 3: IF-ELSE -}
+    if ~ <| less_t<| variable1 , 10 |> |> |:
+        cout ~ "variable1 es menor que 10" !
     :| else ~ |:
-        resultado <- x - y !                     ¡¡ Resta: 5 - 10 = -5
-        cout ~ "Resta: " ~ resultado !           ¡¡ Imprime "Resta: -5"
+        cout ~ "variable1 es mayor o igual a 10" !
     :|
     
-    {- 
-        SECCIÓN 3: ESTRUCTURA DO-WHILE
-        Ejecuta el bloque al menos una vez antes de evaluar la condición
-        Incrementa x en 1 en cada iteración
-        La condición verifica si x es menor o igual que 15 (less_te = less than or equal)
-        El bucle se repite mientras x <= 15
-        Sintaxis: do ~ |: ... :| while ~ <| condición |> !
-    -}
+    {- SECCION 4: DO-WHILE -}
     do ~ |:
-        x <- x + 1 !                             ¡¡ Incrementa x: 5 -> 6, luego 7, 8...
-        cout ~ "Contador: " ~ x !                ¡¡ Imprime el valor actual de x
-    :| while ~ <| less_te<| x , 15 |> |> !
+        contador <- contador + 1 !
+        cout ~ "Contador: " ~ contador !
+    :| while ~ <| less_te<| contador , 5 |> |> !
     
-    {- 
-        SECCIÓN 4: MENSAJE FINAL
-        Se ejecuta después de salir del bucle do-while
-    -}
-    cout ~ "Fin del programa" !                  ¡¡ Imprime mensaje de finalización
+    {- SECCION 5: MENSAJE FINAL -}
+    cout ~ "Fin del programa con variables" !
 :|

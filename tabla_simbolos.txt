@@ -1,0 +1,8 @@
+=== TABLA DE SIMBOLOS ===
+
+Variable        Tipo       Linea
+--------        ----       -----
+variable1       int        8
+total           int        10
+variable2       int        9
+contador        int        11

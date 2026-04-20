@@ -1,18 +1,8 @@
 import java_cup.runtime.*;
 import java.io.*;
+import java.util.*;
 
 parser code {:
-    public static void main(String[] args) throws Exception {
-        if (args.length > 0) {
-            parser p = new parser(new Lexer(new FileReader(args[0])));
-            p.parse();
-            System.out.println("Analisis sintactico: EXITOSO");
-        } else {
-            System.out.println("Uso: java parser <archivo>");
-        }
-    }
-
-    /* Recuperacion en Modo Panico: reporta error con numero de linea y continua */
     public void syntax_error(java_cup.runtime.Symbol s) {
         System.err.println("[ERROR SINTACTICO] Linea " + s.left + ", columna " + s.right
                 + ": token inesperado -> '" + s.value + "'");
