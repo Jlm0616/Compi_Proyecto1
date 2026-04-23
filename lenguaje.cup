@@ -204,8 +204,8 @@ lista_sentencias ::= sentencia lista_sentencias | /* vacio */ ;
 
 
 /* Estructuras de control*/
-if_sentencia ::= IF SEPARADOR INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple
-               | IF SEPARADOR INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple ELSE SEPARADOR bloque_simple;
+if_sentencia ::= IF  INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple
+               | IF  INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple ELSE bloque_simple;
 
 do_while_sentencia ::= DO bloque_simple WHILE INICIO_PARENTESIS expresion FIN_PARENTESIS DELIMITADOR_EXP ;
 
