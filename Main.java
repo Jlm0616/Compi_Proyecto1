@@ -72,7 +72,6 @@ public class Main {
         
         // Ejecutar el parser normalmente
         parser p = new parser(new Lexer(new FileReader(args[0])));
-        p.setTabla(tabla);
         p.parse();
         System.out.println("Analisis sintactico: EXITOSO");
     }

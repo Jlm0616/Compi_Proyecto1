@@ -6,23 +6,9 @@ public class TablaSimbolos {
     private HashMap<String, EntradaSimbolo> tabla = new HashMap<>();
     
     public void agregar(String nombre, String tipo, int linea) {
-        if (tabla.containsKey(nombre)) {
-            System.err.println("[ERROR SEMANTICO] Linea " + linea + ": Variable '" + nombre + "' ya declarada");
-        } else {
-            tabla.put(nombre, new EntradaSimbolo(nombre, tipo, linea));
-        }
+        tabla.put(nombre, new EntradaSimbolo(nombre, tipo, linea));
     }
 
-    public boolean existe(Object id) {
-        return tabla.containsKey(id.toString());
-    }
-    
-    
-    public String getTipo(Object id) {
-        EntradaSimbolo entrada = tabla.get(id.toString());
-        return entrada != null ? entrada.tipo : null;
-    }
-    
     public List<EntradaSimbolo> obtenerEntradas() {
         return new ArrayList<>(tabla.values());
     }

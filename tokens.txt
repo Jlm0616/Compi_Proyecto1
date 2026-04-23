@@ -5,6 +5,7 @@ Token                     Lexema               Linea
 PALABRA_MAIN              __main__             1
 SEPARADOR                 ~                    1
 INICIO_PARENTESIS         <|                   1
+FIN_PARENTESIS            |>                   1
 INICIO_BLOQUE             |:                   1
 INT                       int                  2
 SEPARADOR                 ~                    2
@@ -20,11 +21,11 @@ CADENA                    Hola                 3
 DELIMITADOR_EXP           !                    3
 IDENTIFICADOR             numero               6
 ASIGNACION                <-                   6
-CADENA                    cuatrocientos        6
+CADENA                    Hola                 6
 DELIMITADOR_EXP           !                    6
 IDENTIFICADOR             texto                9
 ASIGNACION                <-                   9
-NUMERO_ENTERO             123                  9
+CADENA                    Hola                 9
 DELIMITADOR_EXP           !                    9
 FIN_BLOQUE                :|                   10
 

@@ -3,27 +3,6 @@ import java.io.*;
 import java.util.*;
 
 parser code {:
-    public TablaSimbolos tabla = new TablaSimbolos();
-
-    public void setTabla(TablaSimbolos t) {
-        this.tabla = t;
-    }
-
-
-    public void errorTipo(int linea, Object id, String esperado, String real) {
-    System.err.println("[ERROR SEMANTICO] Linea " + linea 
-        + ": tipo incompatible para '" + id 
-        + "'. Esperado: " + esperado 
-        + ", encontrado: " + real);
-    }
-    public boolean tiposCompatibles(String esperado, String real) {
-        if (esperado == null || real == null) return true;
-        if (esperado.equals(real)) return true;
-        if ((esperado.equals("int") || esperado.equals("float")) &&
-            (real.equals("int")    || real.equals("float"))) return true;
-        return false;
-    }
-
     public void syntax_error(java_cup.runtime.Symbol s) {
         System.err.println("[ERROR SINTACTICO] Linea " + s.left + ", columna " + s.right
                 + ": token inesperado -> '" + s.value + "'");
@@ -49,31 +28,25 @@ terminal MODULO, POTENCIA, INCREMENTO, DECREMENTO, OPERADOR_LOGICO_BINARIO, OPER
 
 /* No terminales */
 non terminal programa, funcion_main, contenido_programa;
-non terminal String numero;
+non terminal numero;
 non terminal funcion, lista_funciones, parametros, lista_parametros, parametro, parametro_resto;
 non terminal sentencia, lista_sentencias;
-non terminal String declaracion_resto, declaracion_variable_resto;
-non terminal declaracion, lista_valores;
+non terminal declaracion, declaracion_resto, declaracion_variable_resto, lista_valores;
 non terminal asignacion, llamada_funcion_exp, return_sentencia, break_sentencia;
 non terminal cin_sentencia, cout_sentencia, lista_escritura, elemento_escritura;
 non terminal if_sentencia, do_while_sentencia, switch_sentencia;
 non terminal lista_casos, lista_caso_simple, caso, caso_default;
-non terminal operador_relacional;
-non terminal String expresion, exp_logica, resto_logica;
-non terminal String exp_relacional, exp_aritmetica, resto_aritmetica;
-non terminal String exp_termino, resto_termino, exp_potencia, resto_potencia;
-non terminal String exp_factor, valor;
+non terminal operador_relacional, expresion, exp_logica, resto_logica;
+non terminal exp_relacional, exp_aritmetica, resto_aritmetica;
+non terminal exp_termino, resto_termino, exp_potencia, resto_potencia;
+non terminal exp_factor, valor;
 non terminal array, acceso_arreglo;
 non terminal argumentos, lista_argumentos, bloque_simple;
 
 /* Reglas gramaticales */
 start with programa;
 
-numero ::= NUMERO_ENTERO         {: RESULT = "int";   :}
-         | NUMERO_FLOTANTE       {: RESULT = "float"; :}
-         | NOTACION_CIENTIFICA   {: RESULT = "float"; :}
-         | FRACCIONARIO          {: RESULT = "float"; :};
-
+numero ::= NUMERO_ENTERO | NUMERO_FLOTANTE | NOTACION_CIENTIFICA | FRACCIONARIO ;
 
 
 /* Main */
@@ -124,72 +97,38 @@ sentencia ::= declaracion
 
 
 /* Declaraciones         */
-declaracion ::=
-      INT    SEPARADOR IDENTIFICADOR:id declaracion_resto:tipoInit
-      {:
-          if (tipoInit != null && !parser.tiposCompatibles("int", tipoInit))
-              parser.errorTipo(idleft, id, "int", tipoInit);
-      :}
-        | FLOAT  SEPARADOR IDENTIFICADOR:id declaracion_resto:tipoInit
-      {:
-          if (tipoInit != null && !parser.tiposCompatibles("float", tipoInit))
-              parser.errorTipo(idleft, id, "float", tipoInit);
-      :}
-        | BOOL   SEPARADOR IDENTIFICADOR:id declaracion_variable_resto:tipoInit
-      {:
-          if (tipoInit != null && !parser.tiposCompatibles("bool", tipoInit))
-              parser.errorTipo(idleft, id, "bool", tipoInit);
-      :}
-         | CHAR   SEPARADOR IDENTIFICADOR:id declaracion_variable_resto:tipoInit
-      {:
-          if (tipoInit != null && !parser.tiposCompatibles("char", tipoInit))
-              parser.errorTipo(idleft, id, "char", tipoInit);
-      :}
-          | STRING SEPARADOR IDENTIFICADOR:id declaracion_variable_resto:tipoInit
-      {:
-          if (tipoInit != null && !parser.tiposCompatibles("string", tipoInit))
-              parser.errorTipo(idleft, id, "string", tipoInit);
-      :};
+declaracion ::= INT    SEPARADOR IDENTIFICADOR declaracion_resto
+              | FLOAT  SEPARADOR IDENTIFICADOR declaracion_resto
+              | BOOL   SEPARADOR IDENTIFICADOR declaracion_variable_resto
+              | CHAR   SEPARADOR IDENTIFICADOR declaracion_variable_resto
+              | STRING SEPARADOR IDENTIFICADOR declaracion_variable_resto;
 
+declaracion_resto ::= declaracion_variable_resto
+                    | array DELIMITADOR_EXP
+                    | array ASIGNACION INICIO_BLOQUE lista_valores FIN_BLOQUE DELIMITADOR_EXP;
 
-declaracion_resto ::=
-      declaracion_variable_resto:t {: RESULT = t; :}
-         | array DELIMITADOR_EXP {: RESULT = null; :}
-         | array ASIGNACION INICIO_BLOQUE lista_valores FIN_BLOQUE DELIMITADOR_EXP {: RESULT = null; :};
+declaracion_variable_resto ::= DELIMITADOR_EXP
+                              | ASIGNACION expresion DELIMITADOR_EXP;
 
-declaracion_variable_resto ::=
-      DELIMITADOR_EXP {: RESULT = null; :}   
-         | ASIGNACION expresion:t DELIMITADOR_EXP {: RESULT = t;   :};
 lista_valores ::= expresion | expresion COMA lista_valores ;
 
 
-/* Asignacion  */
-asignacion ::=
-      IDENTIFICADOR:id ASIGNACION expresion:tipoExpr DELIMITADOR_EXP
-      {:
-          if (!tabla.existe(id)) {
-              System.err.println("[ERROR SEMANTICO] Linea " + idleft
-                      + ": variable '" + id + "' no fue declarada.");
-          } else {
-              String tipoVar = tabla.getTipo(id);
-              if (!parser.tiposCompatibles(tipoVar, tipoExpr))
-                  parser.errorTipo(idleft, id, tipoVar, tipoExpr);
-          }
-      :}
-         | acceso_arreglo ASIGNACION expresion DELIMITADOR_EXP;
+/* Asignacion            */
+asignacion ::= IDENTIFICADOR ASIGNACION expresion DELIMITADOR_EXP
+             | acceso_arreglo ASIGNACION expresion DELIMITADOR_EXP;
 
-/* Llamada a funcion    */
+
+/* Llamada a funcion     */
 llamada_funcion_exp ::= IDENTIFICADOR INICIO_PARENTESIS argumentos FIN_PARENTESIS ;
 
-return_sentencia ::= RETURN SEPARADOR expresion DELIMITADOR_EXP ;
-break_sentencia  ::= BREAK DELIMITADOR_EXP ;
 
-cin_sentencia ::= CIN SEPARADOR IDENTIFICADOR:id DELIMITADOR_EXP
-                  {:
-                      if (!tabla.existe(id))
-                          System.err.println("[ERROR SEMANTICO] Linea " + idleft
-                                  + ": variable '" + id + "' no fue declarada.");
-                  :};
+/* Return y Break        */
+return_sentencia ::= RETURN SEPARADOR expresion DELIMITADOR_EXP ;
+break_sentencia ::= BREAK DELIMITADOR_EXP ;
+
+
+/* cin y cout            */
+cin_sentencia  ::= CIN SEPARADOR IDENTIFICADOR DELIMITADOR_EXP ;
 cout_sentencia ::= COUT SEPARADOR lista_escritura DELIMITADOR_EXP ;
 
 lista_escritura ::= elemento_escritura
@@ -198,7 +137,7 @@ lista_escritura ::= elemento_escritura
 elemento_escritura ::= IDENTIFICADOR | numero | CADENA | BOOLEANO | CARACTER ;
 
 
-/* Bloques  */
+/* Bloques               */
 bloque_simple ::= INICIO_BLOQUE lista_sentencias FIN_BLOQUE ;
 lista_sentencias ::= sentencia lista_sentencias | /* vacio */ ;
 
@@ -207,7 +146,7 @@ lista_sentencias ::= sentencia lista_sentencias | /* vacio */ ;
 if_sentencia ::= IF  INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple
                | IF  INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple ELSE bloque_simple;
 
-do_while_sentencia ::= DO bloque_simple WHILE INICIO_PARENTESIS expresion FIN_PARENTESIS DELIMITADOR_EXP ;
+do_while_sentencia ::= DO bloque_simple WHILE  INICIO_PARENTESIS expresion FIN_PARENTESIS DELIMITADOR_EXP ;
 
 switch_sentencia ::= SWITCH SEPARADOR INICIO_PARENTESIS expresion FIN_PARENTESIS INICIO_BLOQUE lista_casos FIN_BLOQUE ;
 
@@ -217,147 +156,61 @@ lista_casos ::= lista_caso_simple caso_default
 
 lista_caso_simple ::= caso lista_caso_simple | caso ;
 
+/* punto s: ~ entre case/default y expresion/identificador */
 caso ::= CASE SEPARADOR expresion DOS_PUNTOS lista_sentencias ;
 caso_default ::= DEFAULT DOS_PUNTOS lista_sentencias ;
 
 
-/* Expresiones  */
+/* Expresiones           */
 operador_relacional ::= EQUAL | N_EQUAL | LESS_T | LESS_TE | GREATER_T | GREATER_TE ;
 
-expresion   ::= exp_logica:t  {: RESULT = t; :} ;
+expresion ::= exp_logica ;
 
 
-exp_logica  ::= exp_relacional:t resto_logica  {: RESULT = t; :} ;
-
-resto_logica ::=
-      OPERADOR_LOGICO_BINARIO exp_relacional resto_logica {: RESULT = "bool"; :}
-        | /* vacio */ {: RESULT = null;   :};
+exp_logica ::= exp_relacional resto_logica ;
+resto_logica ::= OPERADOR_LOGICO_BINARIO exp_relacional resto_logica | /* vacio */ ;
 
 
-exp_relacional ::=
-      operador_relacional INICIO_PARENTESIS exp_aritmetica COMA exp_aritmetica FIN_PARENTESIS {: RESULT = "bool"; :}
-        | exp_aritmetica:t {: RESULT = t; :};
+exp_relacional ::= operador_relacional INICIO_PARENTESIS exp_aritmetica COMA exp_aritmetica FIN_PARENTESIS
+                 | exp_aritmetica;
+
+/* punto g: suma y resta */
+exp_aritmetica ::= exp_termino resto_aritmetica ;
+resto_aritmetica ::= MAS   exp_termino resto_aritmetica
+                   | MENOS exp_termino resto_aritmetica
+                   | /* vacio */;
+
+exp_termino ::= exp_factor resto_termino ;
+resto_termino ::= MULTIPLICACION exp_factor resto_termino
+                | DIVISION       exp_factor resto_termino
+                | MODULO         exp_factor resto_termino
+                | /* vacio */;
+
+/* punto g: potencia */
+exp_potencia ::= valor resto_potencia ;
+resto_potencia ::= POTENCIA valor resto_potencia | /* vacio */ ;
 
 
-exp_aritmetica ::= exp_termino:t resto_aritmetica:r
-    {:
-        if (t != null && r != null)
-            RESULT = (t.equals("float") || r.equals("float")) ? "float" : t;
-        else
-            RESULT = (t != null) ? t : r;
-    :};
-
-resto_aritmetica ::=
-      MAS exp_termino:t resto_aritmetica:r
-      {:
-          if (t != null && r != null) {
-              if (!parser.tiposCompatibles(t, r))
-                  System.err.println("[ERROR SEMANTICO]: suma entre tipos incompatibles '"
-                          + t + "' y '" + r + "'.");
-              RESULT = (t.equals("float") || r.equals("float")) ? "float" : t;
-          } else { RESULT = (t != null) ? t : r; }
-      :}
-       | MENOS exp_termino:t resto_aritmetica:r
-      {:
-          if (t != null && r != null) {
-              if (!parser.tiposCompatibles(t, r))
-                  System.err.println("[ERROR SEMANTICO]: resta entre tipos incompatibles '"
-                          + t + "' y '" + r + "'.");
-              RESULT = (t.equals("float") || r.equals("float")) ? "float" : t;
-          } else { RESULT = (t != null) ? t : r; }
-      :}
-        | /* vacio */ {: RESULT = null; :};
+exp_factor ::= MENOS exp_factor
+             | INCREMENTO IDENTIFICADOR
+             | INCREMENTO acceso_arreglo
+             | DECREMENTO IDENTIFICADOR
+             | DECREMENTO acceso_arreglo
+             | OPERADOR_LOGICO_UNARIO exp_factor
+             | exp_potencia;
 
 
-exp_termino ::= exp_factor:t resto_termino:r
-    {:
-        if (t != null && r != null)
-            RESULT = (t.equals("float") || r.equals("float")) ? "float" : t;
-        else
-            RESULT = (t != null) ? t : r;
-    :};
-
-resto_termino ::=
-      MULTIPLICACION exp_factor:t resto_termino:r
-      {:
-          if (t != null && r != null) {
-              if (!parser.tiposCompatibles(t, r))
-                  System.err.println("[ERROR SEMANTICO]: multiplicacion entre tipos incompatibles '"
-                          + t + "' y '" + r + "'.");
-              RESULT = (t.equals("float") || r.equals("float")) ? "float" : t;
-          } else { RESULT = (t != null) ? t : r; }
-      :}
-        | DIVISION exp_factor:t resto_termino:r
-      {:
-          if (t != null && r != null) {
-              if (!parser.tiposCompatibles(t, r))
-                  System.err.println("[ERROR SEMANTICO]: division entre tipos incompatibles '"
-                          + t + "' y '" + r + "'.");
-              RESULT = "float"; /* division siempre puede producir float */
-          } else { RESULT = (t != null) ? t : r; }
-      :}
-        | MODULO exp_factor:t resto_termino:r
-      {:
-          if (t != null && r != null && (!t.equals("int") || !r.equals("int")))
-              System.err.println("[ERROR SEMANTICO]: operador '%' requiere 'int' e 'int', se encontro '"
-                      + t + "' y '" + r + "'.");
-          RESULT = "int";
-      :}
-        | /* vacio */ {: RESULT = null; :};
-
-exp_potencia ::= valor:t resto_potencia  {: RESULT = t; :} ;
-
-resto_potencia ::=
-      POTENCIA valor:t resto_potencia {: RESULT = t;    :}
-        | /* vacio */ {: RESULT = null; :};
-
-exp_factor ::=
-      MENOS exp_factor:t {: RESULT = t; :}
-        | INCREMENTO IDENTIFICADOR:id
-      {:
-          if (!tabla.existe(id))
-              System.err.println("[ERROR SEMANTICO] Linea " + idleft
-                      + ": variable '" + id + "' no declarada en '++'.");
-          RESULT = tabla.getTipo(id);
-      :}
-        | INCREMENTO acceso_arreglo {: RESULT = null; :}
-        | DECREMENTO IDENTIFICADOR:id
-      {:
-          if (!tabla.existe(id))
-              System.err.println("[ERROR SEMANTICO] Linea " + idleft
-                      + ": variable '" + id + "' no declarada en '--'.");
-          RESULT = tabla.getTipo(id);
-      :}
-        | DECREMENTO acceso_arreglo {: RESULT = null; :}
-        | OPERADOR_LOGICO_UNARIO exp_factor:t
-      {:
-          if (t != null && !t.equals("bool"))
-              System.err.println("[ERROR SEMANTICO]: operador '$' requiere 'bool', se encontro '" + t + "'.");
-          RESULT = "bool";
-      :}
-        | exp_potencia:t {: RESULT = t; :};
+valor ::= numero
+        | IDENTIFICADOR
+        | BOOLEANO
+        | CADENA
+        | CARACTER
+        | acceso_arreglo
+        | llamada_funcion_exp
+        | INICIO_PARENTESIS exp_logica FIN_PARENTESIS;
 
 
-valor ::= numero:t {: RESULT = t; :} | IDENTIFICADOR:id
-      {:
-          if (!tabla.existe(id)) {
-              System.err.println("[ERROR SEMANTICO] Linea " + idleft
-                      + ": variable '" + id + "' usada sin declarar.");
-              RESULT = null;
-          } else {
-              RESULT = tabla.getTipo(id);
-          }
-      :}
-    | BOOLEANO {: RESULT = "bool";   :}
-    | CADENA {: RESULT = "string"; :}
-    | CARACTER {: RESULT = "char";   :}
-    | acceso_arreglo {: RESULT = null; :}
-    | llamada_funcion_exp {: RESULT = null; :}
-    | INICIO_PARENTESIS exp_logica:t FIN_PARENTESIS {: RESULT = t; :};
-
-
-
-/* Arreglos*/
+/* Arreglos              */
 array ::= INICIO_INDICE expresion FIN_INDICE
         | INICIO_INDICE expresion FIN_INDICE INICIO_INDICE expresion FIN_INDICE;
 
