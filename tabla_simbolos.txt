@@ -2,7 +2,5 @@
 
 Variable        Tipo       Linea
 --------        ----       -----
-variable1       int        8
-total           int        10
-variable2       int        9
-contador        int        11
+texto           string     3
+numero          int        2

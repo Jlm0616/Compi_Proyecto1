@@ -10,8 +10,17 @@ public class TablaSimbolos {
             System.err.println("[ERROR SEMANTICO] Linea " + linea + ": Variable '" + nombre + "' ya declarada");
         } else {
             tabla.put(nombre, new EntradaSimbolo(nombre, tipo, linea));
-            // System.out.println("[TABLA] " + nombre + " : " + tipo);  // ← COMENTADO
         }
+    }
+
+    public boolean existe(Object id) {
+        return tabla.containsKey(id.toString());
+    }
+    
+    
+    public String getTipo(Object id) {
+        EntradaSimbolo entrada = tabla.get(id.toString());
+        return entrada != null ? entrada.tipo : null;
     }
     
     public List<EntradaSimbolo> obtenerEntradas() {
