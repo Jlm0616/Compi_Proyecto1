@@ -1,4 +1,4 @@
-__main__ ~ <| |> |:
+__main__ ~ <| ) |:
     int ~ numero <- 5 !
     string ~ texto <- "Hola" !
     
