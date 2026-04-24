@@ -31,7 +31,7 @@ non terminal programa, funcion_main, contenido_programa;
 non terminal numero;
 non terminal funcion, lista_funciones, parametros, lista_parametros, parametro, parametro_resto;
 non terminal sentencia, lista_sentencias;
-non terminal declaracion, declaracion_resto, declaracion_variable_resto, lista_valores;
+non terminal declaracion, declaracion_resto, declaracion_variable_resto, lista_valores,valor_lista;
 non terminal asignacion, llamada_funcion_exp, return_sentencia, break_sentencia;
 non terminal cin_sentencia, cout_sentencia, lista_escritura, elemento_escritura;
 non terminal if_sentencia, do_while_sentencia, switch_sentencia;
@@ -110,7 +110,8 @@ declaracion_resto ::= declaracion_variable_resto
 declaracion_variable_resto ::= DELIMITADOR_EXP
                               | ASIGNACION expresion DELIMITADOR_EXP;
 
-lista_valores ::= expresion | expresion COMA lista_valores ;
+lista_valores ::= valor_lista | valor_lista COMA lista_valores;
+valor_lista ::= expresion | INICIO_BLOQUE lista_valores FIN_BLOQUE;
 
 
 /* Asignacion            */
