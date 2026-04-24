@@ -3,6 +3,24 @@ import java.io.*;
 import java.util.*;
 
 parser code {:
+
+    static java.util.HashMap<String, String[]> tabla = new java.util.HashMap<>();
+
+    public static void agregarSimbolo(String nombre, String tipo, int linea) {
+        tabla.put(nombre, new String[]{tipo, String.valueOf(linea)});
+    }
+
+    public static void imprimirTabla() {
+        System.out.println("\n=== TABLA DE SIMBOLOS ===");
+        System.out.println(String.format("%-20s %-15s %s", "Nombre", "Tipo", "Linea"));
+        System.out.println(String.format("%-20s %-15s %s", "------", "----", "-----"));
+        for (java.util.Map.Entry<String, String[]> e : tabla.entrySet()) {
+            System.out.println(String.format("%-20s %-15s %s",
+                e.getKey(), e.getValue()[0], e.getValue()[1]));
+        }
+    }
+
+    /* ===== MANEJO DE ERRORES ===== */
     public void syntax_error(java_cup.runtime.Symbol s) {
         System.err.println("[ERROR SINTACTICO] Linea " + s.left + ", columna " + s.right
                 + ": token inesperado -> '" + s.value + "'");
@@ -50,7 +68,8 @@ numero ::= NUMERO_ENTERO | NUMERO_FLOTANTE | NOTACION_CIENTIFICA | FRACCIONARIO 
 
 
 /* Main */
-programa ::= lista_funciones funcion_main ;
+programa ::= lista_funciones funcion_main
+             {: imprimirTabla(); :} ;
 funcion_main ::= PALABRA_MAIN SEPARADOR INICIO_PARENTESIS FIN_PARENTESIS INICIO_BLOQUE contenido_programa FIN_BLOQUE ;
 contenido_programa ::= lista_sentencias ;
 
@@ -96,12 +115,17 @@ sentencia ::= declaracion
             | error DELIMITADOR_EXP;
 
 
-/* Declaraciones         */
-declaracion ::= INT    SEPARADOR IDENTIFICADOR declaracion_resto
-              | FLOAT  SEPARADOR IDENTIFICADOR declaracion_resto
-              | BOOL   SEPARADOR IDENTIFICADOR declaracion_variable_resto
-              | CHAR   SEPARADOR IDENTIFICADOR declaracion_variable_resto
-              | STRING SEPARADOR IDENTIFICADOR declaracion_variable_resto;
+/* Declaraciones */
+declaracion ::= INT SEPARADOR IDENTIFICADOR:id declaracion_resto
+                {: agregarSimbolo((String)id, "int", idleft); :}
+              | FLOAT SEPARADOR IDENTIFICADOR:id declaracion_resto
+                {: agregarSimbolo((String)id, "float", idleft); :}
+              | BOOL SEPARADOR IDENTIFICADOR:id declaracion_variable_resto
+                {: agregarSimbolo((String)id, "bool", idleft); :}
+              | CHAR SEPARADOR IDENTIFICADOR:id declaracion_variable_resto
+                {: agregarSimbolo((String)id, "char", idleft); :}
+              | STRING SEPARADOR IDENTIFICADOR:id declaracion_variable_resto
+                {: agregarSimbolo((String)id, "string", idleft); :};
 
 declaracion_resto ::= declaracion_variable_resto
                     | array DELIMITADOR_EXP

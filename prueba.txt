@@ -1,0 +1,32 @@
+{- Programa de prueba -}
+
+int ~ suma <| int ~ a, int ~ b |> |:
+    int ~ resultado <- a + b !
+    return ~ resultado !
+:|
+
+float ~ promedio <| float ~ x, float ~ y |> |:
+    float ~ total <- x + y !
+    return ~ total !
+:|
+
+__main__ ~ <| |> |:
+    int ~ contador !
+    float ~ precio <- 9.99 !
+    bool ~ activo <- true !
+    char ~ letra <- 'A' !
+    string ~ nombre <- "Hola" !
+    int ~ matriz << 3 >> << 3 >> !
+    contador <- 10 !
+    int ~ res <- suma <| 5, 3 |> !
+    if <| activo |> |:
+        cout ~ nombre !
+    :|
+    do |:
+        contador <- ++contador !
+    :| while <| less_t <| contador, 5 |> |> !
+    switch ~ <| contador |> |:
+        case ~ 1 : cout ~ "uno" !
+        default : cout ~ "otro" !
+    :|
+:|

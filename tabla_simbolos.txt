@@ -1,7 +1,0 @@
-=== TABLA DE SIMBOLOS ===
-
-Variable        Tipo       Linea
---------        ----       -----
-b2              bool       7
-id              float      39
-s2              string     43
