@@ -1,4 +1,4 @@
-{- Programa de prueba -}
+{- Programa de prueba con variables dentro del switch -}
 
 int ~ suma <| int ~ a, int ~ b |> |:
     int ~ resultado <- a + b !
@@ -20,13 +20,27 @@ __main__ ~ <| |> |:
     contador <- 10 !
     int ~ res <- suma <| 5, 3 |> !
     if <| activo |> |:
+        int ~ temporal <- 100 !
         cout ~ nombre !
     :|
     do |:
         contador <- ++contador !
     :| while <| less_t <| contador, 5 |> |> !
+    
     switch ~ <| contador |> |:
-        case ~ 1 : cout ~ "uno" !
-        default : cout ~ "otro" !
+        case ~ 1 : 
+            int ~ valor1 <- 100 !
+            string ~ texto1 <- "Caso UNO" !
+            cout ~ texto1 ~ ": " ~ valor1 !
+        case ~ 2 : 
+            int ~ valor2 <- 200 !
+            string ~ texto2 <- "Caso DOS" !
+            cout ~ texto2 ~ ": " ~ valor2 !
+        default : 
+            int ~ valorDefault <- 999 !
+            string ~ textoDefault <- "Caso DEFAULT" !
+            cout ~ textoDefault ~ ": " ~ valorDefault !
     :|
+    
+    cout ~ "Fin del programa" !
 :|

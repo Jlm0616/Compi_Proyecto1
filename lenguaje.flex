@@ -52,7 +52,7 @@ Letra = [a-zA-Z]
 Identificador = ({Letra}|"_")({Letra}|{Digito}|"_")*
 
 /* ========== CADENAS Y CARACTERES ========== */
-CualquierCaracter = ({Letra}|{Digito}|" "|"."|","|":"|";"|"_"|"+"|"-"|"*"|"/")
+CualquierCaracter = ({Letra}|{Digito}|" "|"."|","|":"|";"|"_"|"+"|"-"|"*"|"/"|"="|"!"|"?"|"@"|"#"|"$"|"^"|"%"|"("|")"|"["|"]"|"{"|"}"|"<"|">"|"&"|"|"|"~")
 Cadena = "\"" {CualquierCaracter}* "\""
 Caracter = "'" {CualquierCaracter} "'"
 

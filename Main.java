@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -28,6 +27,7 @@ public class Main {
         System.out.println("Tokens guardados en: tokens.txt");
 
         // ===== EJECUTAR PARSER (tabla de simbolos se llena desde el CUP) =====
+        @SuppressWarnings("deprecation")
         parser p = new parser(new Lexer(new FileReader(args[0])));
         p.parse();
         System.out.println("Analisis sintactico: EXITOSO");

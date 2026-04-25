@@ -3,24 +3,47 @@ import java.io.*;
 import java.util.*;
 
 parser code {:
+    // Pila de tablas de símbolos
+    static java.util.Stack<java.util.HashMap<String, String[]>> pilaTablas = new java.util.Stack<>();
+    static java.util.Stack<String> nombresAmbitos = new java.util.Stack<>();
+    
+    static int contadorBloques = 0;
+    static int contadorCasos = 0;
 
-    static java.util.HashMap<String, String[]> tabla = new java.util.HashMap<>();
-
-    public static void agregarSimbolo(String nombre, String tipo, int linea) {
-        tabla.put(nombre, new String[]{tipo, String.valueOf(linea)});
+    public static void pushScope(String nombre) {
+        pilaTablas.push(new java.util.HashMap<>());
+        nombresAmbitos.push(nombre);
     }
-
-    public static void imprimirTabla() {
-        System.out.println("\n=== TABLA DE SIMBOLOS ===");
-        System.out.println(String.format("%-20s %-15s %s", "Nombre", "Tipo", "Linea"));
-        System.out.println(String.format("%-20s %-15s %s", "------", "----", "-----"));
-        for (java.util.Map.Entry<String, String[]> e : tabla.entrySet()) {
-            System.out.println(String.format("%-20s %-15s %s",
-                e.getKey(), e.getValue()[0], e.getValue()[1]));
+    
+    public static void popScope() {
+        if (!pilaTablas.isEmpty()) {
+            java.util.HashMap<String, String[]> ambito = pilaTablas.pop();
+            String nombre = nombresAmbitos.pop();
+            System.out.println("\n=== TABLA DE SIMBOLOS: " + nombre + " ===");
+            imprimirTabla(ambito);
         }
     }
-
-    /* ===== MANEJO DE ERRORES ===== */
+    
+    public static void agregarSimbolo(String nombre, String tipo, int linea) {
+        if (pilaTablas.isEmpty()) return;
+        java.util.HashMap<String, String[]> ambito = pilaTablas.peek();
+        if (!ambito.containsKey(nombre)) {
+            ambito.put(nombre, new String[]{tipo, String.valueOf(linea)});
+        }
+    }
+    
+    private static void imprimirTabla(java.util.HashMap<String, String[]> tabla) {
+        if (tabla.isEmpty()) {
+            System.out.println("  (sin variables)");
+            return;
+        }
+        System.out.println(String.format("%-20s %-10s %s", "Variable", "Tipo", "Linea"));
+        System.out.println(String.format("%-20s %-10s %s", "--------", "----", "-----"));
+        for (java.util.Map.Entry<String, String[]> e : tabla.entrySet()) {
+            System.out.println(String.format("%-20s %-10s %s", e.getKey(), e.getValue()[0], e.getValue()[1]));
+        }
+    }
+    
     public void syntax_error(java_cup.runtime.Symbol s) {
         System.err.println("[ERROR SINTACTICO] Linea " + s.left + ", columna " + s.right
                 + ": token inesperado -> '" + s.value + "'");
@@ -68,29 +91,31 @@ numero ::= NUMERO_ENTERO | NUMERO_FLOTANTE | NOTACION_CIENTIFICA | FRACCIONARIO 
 
 
 /* Main */
-programa ::= lista_funciones funcion_main
-             {: imprimirTabla(); :} ;
+programa ::= lista_funciones 
+             {: pushScope("GLOBAL (MAIN)"); :}
+             funcion_main
+             {: popScope(); :} ;
 funcion_main ::= PALABRA_MAIN SEPARADOR INICIO_PARENTESIS FIN_PARENTESIS INICIO_BLOQUE contenido_programa FIN_BLOQUE ;
 contenido_programa ::= lista_sentencias ;
 
 
 /* Funciones  */
-funcion ::= INT    SEPARADOR IDENTIFICADOR INICIO_PARENTESIS parametros FIN_PARENTESIS INICIO_BLOQUE lista_sentencias FIN_BLOQUE
-          | FLOAT  SEPARADOR IDENTIFICADOR INICIO_PARENTESIS parametros FIN_PARENTESIS INICIO_BLOQUE lista_sentencias FIN_BLOQUE
-          | BOOL   SEPARADOR IDENTIFICADOR INICIO_PARENTESIS parametros FIN_PARENTESIS INICIO_BLOQUE lista_sentencias FIN_BLOQUE
-          | CHAR   SEPARADOR IDENTIFICADOR INICIO_PARENTESIS parametros FIN_PARENTESIS INICIO_BLOQUE lista_sentencias FIN_BLOQUE
-          | STRING SEPARADOR IDENTIFICADOR INICIO_PARENTESIS parametros FIN_PARENTESIS INICIO_BLOQUE lista_sentencias FIN_BLOQUE;
+funcion ::= INT    SEPARADOR IDENTIFICADOR:id {: pushScope((String)id); :} INICIO_PARENTESIS parametros FIN_PARENTESIS INICIO_BLOQUE lista_sentencias FIN_BLOQUE {: popScope(); :}
+          | FLOAT  SEPARADOR IDENTIFICADOR:id {: pushScope((String)id); :} INICIO_PARENTESIS parametros FIN_PARENTESIS INICIO_BLOQUE lista_sentencias FIN_BLOQUE {: popScope(); :}
+          | BOOL   SEPARADOR IDENTIFICADOR:id {: pushScope((String)id); :} INICIO_PARENTESIS parametros FIN_PARENTESIS INICIO_BLOQUE lista_sentencias FIN_BLOQUE {: popScope(); :}
+          | CHAR   SEPARADOR IDENTIFICADOR:id {: pushScope((String)id); :} INICIO_PARENTESIS parametros FIN_PARENTESIS INICIO_BLOQUE lista_sentencias FIN_BLOQUE {: popScope(); :}
+          | STRING SEPARADOR IDENTIFICADOR:id {: pushScope((String)id); :} INICIO_PARENTESIS parametros FIN_PARENTESIS INICIO_BLOQUE lista_sentencias FIN_BLOQUE {: popScope(); :};
 
 lista_funciones ::= funcion lista_funciones | /* vacio */ ;
 parametros ::= lista_parametros | /* vacio */ ;
 lista_parametros ::= parametro | parametro COMA lista_parametros ;
 
 /* FIX: factorizado con parametro_resto para evitar conflictos y reducir repeticion */
-parametro ::= INT    SEPARADOR IDENTIFICADOR parametro_resto
-            | FLOAT  SEPARADOR IDENTIFICADOR parametro_resto
-            | BOOL   SEPARADOR IDENTIFICADOR parametro_resto
-            | CHAR   SEPARADOR IDENTIFICADOR parametro_resto
-            | STRING SEPARADOR IDENTIFICADOR parametro_resto;
+parametro ::= INT    SEPARADOR IDENTIFICADOR:id parametro_resto {: agregarSimbolo((String)id, "int", idleft); :}
+            | FLOAT  SEPARADOR IDENTIFICADOR:id parametro_resto {: agregarSimbolo((String)id, "float", idleft); :}
+            | BOOL   SEPARADOR IDENTIFICADOR:id parametro_resto {: agregarSimbolo((String)id, "bool", idleft); :}
+            | CHAR   SEPARADOR IDENTIFICADOR:id parametro_resto {: agregarSimbolo((String)id, "char", idleft); :}
+            | STRING SEPARADOR IDENTIFICADOR:id parametro_resto {: agregarSimbolo((String)id, "string", idleft); :};
 
 parametro_resto ::= /* vacio */
                   | ASIGNACION valor;
@@ -116,16 +141,11 @@ sentencia ::= declaracion
 
 
 /* Declaraciones */
-declaracion ::= INT SEPARADOR IDENTIFICADOR:id declaracion_resto
-                {: agregarSimbolo((String)id, "int", idleft); :}
-              | FLOAT SEPARADOR IDENTIFICADOR:id declaracion_resto
-                {: agregarSimbolo((String)id, "float", idleft); :}
-              | BOOL SEPARADOR IDENTIFICADOR:id declaracion_variable_resto
-                {: agregarSimbolo((String)id, "bool", idleft); :}
-              | CHAR SEPARADOR IDENTIFICADOR:id declaracion_variable_resto
-                {: agregarSimbolo((String)id, "char", idleft); :}
-              | STRING SEPARADOR IDENTIFICADOR:id declaracion_variable_resto
-                {: agregarSimbolo((String)id, "string", idleft); :};
+declaracion ::= INT SEPARADOR IDENTIFICADOR:id declaracion_resto              {: agregarSimbolo((String)id, "int", idleft); :}
+              | FLOAT SEPARADOR IDENTIFICADOR:id declaracion_resto            {: agregarSimbolo((String)id, "float", idleft); :}
+              | BOOL SEPARADOR IDENTIFICADOR:id declaracion_variable_resto    {: agregarSimbolo((String)id, "bool", idleft); :}
+              | CHAR SEPARADOR IDENTIFICADOR:id declaracion_variable_resto    {: agregarSimbolo((String)id, "char", idleft); :}
+              | STRING SEPARADOR IDENTIFICADOR:id declaracion_variable_resto  {: agregarSimbolo((String)id, "string", idleft); :};
 
 declaracion_resto ::= declaracion_variable_resto
                     | array DELIMITADOR_EXP
@@ -163,17 +183,17 @@ elemento_escritura ::= IDENTIFICADOR | numero | CADENA | BOOLEANO | CARACTER ;
 
 
 /* Bloques               */
-bloque_simple ::= INICIO_BLOQUE lista_sentencias FIN_BLOQUE ;
+bloque_simple ::= INICIO_BLOQUE {: contadorBloques++; pushScope("BLOQUE " + contadorBloques); :} lista_sentencias FIN_BLOQUE {: popScope(); :};
 lista_sentencias ::= sentencia lista_sentencias | /* vacio */ ;
 
 
 /* Estructuras de control*/
-if_sentencia ::= IF  INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple
-               | IF  INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple ELSE bloque_simple;
+if_sentencia ::= IF INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple
+               | IF INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple ELSE bloque_simple;
 
 do_while_sentencia ::= DO bloque_simple WHILE  INICIO_PARENTESIS expresion FIN_PARENTESIS DELIMITADOR_EXP ;
 
-switch_sentencia ::= SWITCH SEPARADOR INICIO_PARENTESIS expresion FIN_PARENTESIS INICIO_BLOQUE lista_casos FIN_BLOQUE ;
+switch_sentencia ::= SWITCH SEPARADOR INICIO_PARENTESIS expresion FIN_PARENTESIS {: contadorCasos = 0; pushScope("SWITCH"); :} INICIO_BLOQUE lista_casos FIN_BLOQUE {: popScope(); :};
 
 lista_casos ::= lista_caso_simple caso_default
               | lista_caso_simple
@@ -182,8 +202,8 @@ lista_casos ::= lista_caso_simple caso_default
 lista_caso_simple ::= caso lista_caso_simple | caso ;
 
 /* punto s: ~ entre case/default y expresion/identificador */
-caso ::= CASE SEPARADOR expresion DOS_PUNTOS lista_sentencias ;
-caso_default ::= DEFAULT DOS_PUNTOS lista_sentencias ;
+caso ::= CASE SEPARADOR expresion DOS_PUNTOS  {: contadorCasos++; pushScope("CASE " + contadorCasos); :} lista_sentencias {: popScope(); :};
+caso_default ::= DEFAULT DOS_PUNTOS {: pushScope("DEFAULT"); :} lista_sentencias {: popScope(); :};
 
 
 /* Expresiones           */
