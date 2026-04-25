@@ -83,12 +83,15 @@ non terminal exp_termino, resto_termino, exp_potencia, resto_potencia;
 non terminal exp_factor, valor;
 non terminal array, acceso_arreglo;
 non terminal argumentos, lista_argumentos, bloque_simple;
+non terminal casoConstante;
 
 /* Reglas gramaticales */
 start with programa;
 
 numero ::= NUMERO_ENTERO | NUMERO_FLOTANTE | NOTACION_CIENTIFICA | FRACCIONARIO ;
 
+/* Para case - solo constantes literales (sin variables) */
+casoConstante ::= numero | CADENA | BOOLEANO | CARACTER ;
 
 /* Main */
 programa ::= lista_funciones 
@@ -202,7 +205,7 @@ lista_casos ::= lista_caso_simple caso_default
 lista_caso_simple ::= caso lista_caso_simple | caso ;
 
 /* punto s: ~ entre case/default y expresion/identificador */
-caso ::= CASE SEPARADOR expresion DOS_PUNTOS  {: contadorCasos++; pushScope("CASE " + contadorCasos); :} lista_sentencias {: popScope(); :};
+caso ::= CASE SEPARADOR casoConstante DOS_PUNTOS  {: contadorCasos++; pushScope("CASE " + contadorCasos); :} lista_sentencias {: popScope(); :};
 caso_default ::= DEFAULT DOS_PUNTOS {: pushScope("DEFAULT"); :} lista_sentencias {: popScope(); :};
 
 

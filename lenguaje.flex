@@ -45,7 +45,7 @@ Digito = [0-9]
 NumeroEntero = {Digito}+
 NumeroFlotante = {Digito}+ "." {Digito}+
 NotacionCientifica = {Digito}+ "e" {Digito}+
-Fraccionario = {Digito}+ "/" {Digito}+
+Fraccionario = {Digito}+ "//" {Digito}+
 
 /* ========== IDENTIFICADORES ========== */
 Letra = [a-zA-Z]

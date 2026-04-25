@@ -16,8 +16,10 @@ __main__ ~ <| |> |:
     bool ~ activo <- true !
     char ~ letra <- 'A' !
     string ~ nombre <- "Hola" !
-    int ~ matriz << 3 >> << 3 >> !
+    int ~ matriz2d << 2 >> << 2 >> <- |: |: 1, 2 :|, |: 3, 4 :| :| !
     contador <- 10 !
+    float ~ fraccion <- 5//6 !
+    float ~ notacion <- 100e10 !
     int ~ res <- suma <| 5, 3 |> !
     if <| activo |> |:
         int ~ temporal <- 100 !
