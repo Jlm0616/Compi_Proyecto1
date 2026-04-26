@@ -1,48 +1,46 @@
-{- Programa de prueba con variables dentro del switch -}
+{- Programa de prueba con ERRORES -}
 
 int ~ suma <| int ~ a, int ~ b |> |:
+    {- ERROR: falta el ! -}
     int ~ resultado <- a + b !
     return ~ resultado !
 :|
 
 float ~ promedio <| float ~ x, float ~ y |> |:
     float ~ total <- x + y !
+    {- ERROR: falta el ! -}
     return ~ total !
 :|
 
 __main__ ~ <| |> |:
+    {- ERROR: falta el ! -}
     int ~ contador !
     float ~ precio <- 9.99 !
+    {- ERROR: falta el ! -}
     bool ~ activo <- true !
     char ~ letra <- 'A' !
+    {- ERROR: falta el ! -}
     string ~ nombre <- "Hola" !
-    int ~ matriz2d << 2 >> << 2 >> <- |: |: 1, 2 :|, |: 3, 4 :| :| !
-    contador <- 10 !
-    float ~ fraccion <- 5//6 !
-    float ~ notacion <- 100e10 !
-    int ~ res <- suma <| 5, 3 |> !
+    
     if <| activo |> |:
         int ~ temporal <- 100 !
+        {- ERROR: falta el ! -}
         cout ~ nombre !
     :|
+    
     do |:
+        {- ERROR: falta el ! -}
         contador <- ++contador !
     :| while <| less_t <| contador, 5 |> |> !
     
     switch ~ <| contador |> |:
-        case ~ 1 : 
-            int ~ valor1 <- 100 !
-            string ~ texto1 <- "Caso UNO" !
-            cout ~ texto1 ~ ": " ~ valor1 !
-        case ~ 2 : 
-            int ~ valor2 <- 200 !
-            string ~ texto2 <- "Caso DOS" !
-            cout ~ texto2 ~ ": " ~ valor2 !
-        default : 
-            int ~ valorDefault <- 999 !
-            string ~ textoDefault <- "Caso DEFAULT" !
-            cout ~ textoDefault ~ ": " ~ valorDefault !
+        {- ERROR: falta el ~ -}
+        case ~ 1 :
+            int ~ valor1 <- 100 ! 
+            {- ERROR: falta el ! -}
+            cout ~ "Caso UNO" !
     :|
     
-    cout ~ "Fin del programa" !
+    {- ERROR: falta el ! -}
+    cout ~ "Fin" ! 
 :|

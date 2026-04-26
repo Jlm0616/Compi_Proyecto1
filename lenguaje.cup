@@ -148,7 +148,8 @@ declaracion ::= INT SEPARADOR IDENTIFICADOR:id declaracion_resto              {:
               | FLOAT SEPARADOR IDENTIFICADOR:id declaracion_resto            {: agregarSimbolo((String)id, "float", idleft); :}
               | BOOL SEPARADOR IDENTIFICADOR:id declaracion_variable_resto    {: agregarSimbolo((String)id, "bool", idleft); :}
               | CHAR SEPARADOR IDENTIFICADOR:id declaracion_variable_resto    {: agregarSimbolo((String)id, "char", idleft); :}
-              | STRING SEPARADOR IDENTIFICADOR:id declaracion_variable_resto  {: agregarSimbolo((String)id, "string", idleft); :};
+              | STRING SEPARADOR IDENTIFICADOR:id declaracion_variable_resto  {: agregarSimbolo((String)id, "string", idleft); :}
+              | error SEPARADOR IDENTIFICADOR declaracion_resto               {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Tipo no reconocido, se asume 'int'"); :};
 
 declaracion_resto ::= declaracion_variable_resto
                     | array DELIMITADOR_EXP
@@ -163,21 +164,24 @@ valor_lista ::= expresion | INICIO_BLOQUE lista_valores FIN_BLOQUE;
 
 /* Asignacion            */
 asignacion ::= IDENTIFICADOR ASIGNACION expresion DELIMITADOR_EXP
-             | acceso_arreglo ASIGNACION expresion DELIMITADOR_EXP;
-
+             | acceso_arreglo ASIGNACION expresion DELIMITADOR_EXP
+             | IDENTIFICADOR error expresion DELIMITADOR_EXP {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)).left + ": Operador de asignacion incorrecto, se asume '<-'"); :};
 
 /* Llamada a funcion     */
 llamada_funcion_exp ::= IDENTIFICADOR INICIO_PARENTESIS argumentos FIN_PARENTESIS ;
 
 
 /* Return y Break        */
-return_sentencia ::= RETURN SEPARADOR expresion DELIMITADOR_EXP ;
+return_sentencia ::= RETURN SEPARADOR expresion DELIMITADOR_EXP
+                   | RETURN error DELIMITADOR_EXP {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Expresion de retorno invalida, se asume retorno por defecto"); :};
+
 break_sentencia ::= BREAK DELIMITADOR_EXP ;
 
 
 /* cin y cout            */
 cin_sentencia  ::= CIN SEPARADOR IDENTIFICADOR DELIMITADOR_EXP ;
-cout_sentencia ::= COUT SEPARADOR lista_escritura DELIMITADOR_EXP ;
+cout_sentencia ::= COUT SEPARADOR lista_escritura DELIMITADOR_EXP
+                 | COUT error DELIMITADOR_EXP {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Escritura invalida, se omite"); :};
 
 lista_escritura ::= elemento_escritura
                   | elemento_escritura SEPARADOR lista_escritura;
@@ -192,11 +196,13 @@ lista_sentencias ::= sentencia lista_sentencias | /* vacio */ ;
 
 /* Estructuras de control*/
 if_sentencia ::= IF INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple
-               | IF INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple ELSE bloque_simple;
+               | IF INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple ELSE bloque_simple
+               | IF error bloque_simple {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Condicion de if invalida, se asume verdadero"); :};
 
 do_while_sentencia ::= DO bloque_simple WHILE  INICIO_PARENTESIS expresion FIN_PARENTESIS DELIMITADOR_EXP ;
 
-switch_sentencia ::= SWITCH SEPARADOR INICIO_PARENTESIS expresion FIN_PARENTESIS {: contadorCasos = 0; pushScope("SWITCH"); :} INICIO_BLOQUE lista_casos FIN_BLOQUE {: popScope(); :};
+switch_sentencia ::= SWITCH SEPARADOR INICIO_PARENTESIS expresion FIN_PARENTESIS {: contadorCasos = 0; pushScope("SWITCH"); :} INICIO_BLOQUE lista_casos FIN_BLOQUE {: popScope(); :}
+                   | SWITCH error INICIO_BLOQUE lista_casos FIN_BLOQUE           {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Switch invalido, se omite"); :};
 
 lista_casos ::= lista_caso_simple caso_default
               | lista_caso_simple
@@ -205,7 +211,9 @@ lista_casos ::= lista_caso_simple caso_default
 lista_caso_simple ::= caso lista_caso_simple | caso ;
 
 /* punto s: ~ entre case/default y expresion/identificador */
-caso ::= CASE SEPARADOR casoConstante DOS_PUNTOS  {: contadorCasos++; pushScope("CASE " + contadorCasos); :} lista_sentencias {: popScope(); :};
+caso ::= CASE SEPARADOR casoConstante DOS_PUNTOS {: contadorCasos++; pushScope("CASE " + contadorCasos); :} lista_sentencias {: popScope(); :}
+       | CASE error DOS_PUNTOS lista_sentencias  {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Case invalido, se omite"); :};
+
 caso_default ::= DEFAULT DOS_PUNTOS {: pushScope("DEFAULT"); :} lista_sentencias {: popScope(); :};
 
 
