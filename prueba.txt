@@ -36,7 +36,7 @@ __main__ ~ <| |> |:
     switch ~ <| contador |> |:
         {- ERROR: falta el ~ -}
         case ~ 1 :
-            int ~ valor1 <- 100 ! 
+            int ~ valor1 <- 100 !
             {- ERROR: falta el ! -}
             cout ~ "Caso UNO" !
     :|

@@ -247,7 +247,7 @@ exp_potencia ::= valor resto_potencia ;
 resto_potencia ::= POTENCIA valor resto_potencia | /* vacio */ ;
 
 
-exp_factor ::= MENOS exp_factor
+exp_factor ::= MENOS numero
              | INCREMENTO IDENTIFICADOR
              | INCREMENTO acceso_arreglo
              | DECREMENTO IDENTIFICADOR
