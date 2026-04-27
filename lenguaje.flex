@@ -135,6 +135,7 @@ OpLogicoUnario = "$"
 {LessTe}         { return symbol(sym.LESS_TE, yytext()); }
 {GreaterT}       { return symbol(sym.GREATER_T, yytext()); }
 {GreaterTe}      { return symbol(sym.GREATER_TE, yytext()); }
+{Empty}          { return symbol(sym.EMPTY, yytext());}
 
 /* ========== OPERADORES Y SIMBOLOS ========== */
 {Asignacion}           { return symbol(sym.ASIGNACION, yytext()); }
