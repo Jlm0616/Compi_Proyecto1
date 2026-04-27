@@ -115,6 +115,7 @@ lista_parametros ::= parametro | parametro COMA lista_parametros ;
 
 /* FIX: factorizado con parametro_resto para evitar conflictos y reducir repeticion */
 parametro ::= INT    SEPARADOR IDENTIFICADOR:id parametro_resto {: agregarSimbolo((String)id, "int", idleft); :}
+            | INT    SEPARADOR IDENTIFICADOR:id array parametro_resto {: agregarSimbolo((String)id, "int[]", idleft); :}
             | FLOAT  SEPARADOR IDENTIFICADOR:id parametro_resto {: agregarSimbolo((String)id, "float", idleft); :}
             | BOOL   SEPARADOR IDENTIFICADOR:id parametro_resto {: agregarSimbolo((String)id, "bool", idleft); :}
             | CHAR   SEPARADOR IDENTIFICADOR:id parametro_resto {: agregarSimbolo((String)id, "char", idleft); :}
@@ -186,7 +187,7 @@ cout_sentencia ::= COUT SEPARADOR lista_escritura DELIMITADOR_EXP
 lista_escritura ::= elemento_escritura
                   | elemento_escritura SEPARADOR lista_escritura;
 
-elemento_escritura ::= IDENTIFICADOR | numero | CADENA | BOOLEANO | CARACTER ;
+elemento_escritura ::= IDENTIFICADOR | numero | CADENA | BOOLEANO | CARACTER | acceso_arreglo ;
 
 
 /* Bloques               */

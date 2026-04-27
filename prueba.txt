@@ -81,7 +81,7 @@ int ~ factorial <| int ~ n |> |:
 :|
 
 {- ============ MAIN ============ -}
-    __main__ ~ <| |> |:
+ empty  __main__ ~ <| |> |:
 
     {- === Variables basicas === -}
     int ~ edad <- 25 !
