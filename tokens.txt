@@ -382,6 +382,7 @@ IDENTIFICADOR             resultado            80
 DELIMITADOR_EXP           !                    80
 FIN_BLOQUE                :|                   81
 EMPTY                     empty                84
+SEPARADOR                 ~                    84
 PALABRA_MAIN              __main__             84
 SEPARADOR                 ~                    84
 INICIO_PARENTESIS         <|                   84
