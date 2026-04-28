@@ -26,10 +26,15 @@ public class Main {
         tokenWriter.close();
         System.out.println("Tokens guardados en: tokens.txt");
 
-        // ===== EJECUTAR PARSER (tabla de simbolos se llena desde el CUP) =====
+        // ===== EJECUTAR PARSER =====
         @SuppressWarnings("deprecation")
         parser p = new parser(new Lexer(new FileReader(args[0])));
         p.parse();
-        System.out.println("Analisis sintactico: EXITOSO");
+        
+        if (parser.erroresSintacticos == 0 && Lexer.erroresLexicos == 0) {
+            System.out.println("Analisis sintactico: EXITOSO");
+        } else {
+            System.out.println("Analisis sintactico: FALLIDO (" + parser.erroresSintacticos + " error(es) sintactico(s), " + Lexer.erroresLexicos + " error(es) lexico(s))");
+        }
     }
 }

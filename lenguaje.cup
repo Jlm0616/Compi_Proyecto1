@@ -9,6 +9,9 @@ parser code {:
     
     static int contadorBloques = 0;
     static int contadorCasos = 0;
+    
+    // Contador de errores sintácticos
+    public static int erroresSintacticos = 0;
 
     public static void pushScope(String nombre) {
         pilaTablas.push(new java.util.HashMap<>());
@@ -45,11 +48,13 @@ parser code {:
     }
     
     public void syntax_error(java_cup.runtime.Symbol s) {
+        erroresSintacticos++;
         System.err.println("[ERROR SINTACTICO] Linea " + s.left + ", columna " + s.right
                 + ": token inesperado -> '" + s.value + "'");
     }
 
     public void unrecovered_syntax_error(java_cup.runtime.Symbol s) {
+        erroresSintacticos++;
         System.err.println("[ERROR SINTACTICO IRRECUPERABLE] Linea " + s.left
                 + ": no se pudo continuar el analisis.");
     }
