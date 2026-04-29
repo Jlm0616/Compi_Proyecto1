@@ -16,6 +16,9 @@ import java_cup.runtime.Symbol;
     /* Contador de errores léxicos */
     public static int erroresLexicos = 0;
     
+    /* Flag para silenciar errores (primer pase) */
+    public static boolean silenciarErrores = false;
+    
     /* Método para crear un token sin valor */
     private Symbol symbol(int type) {
         return new Symbol(type, yyline + 1, yycolumn + 1);
@@ -29,7 +32,9 @@ import java_cup.runtime.Symbol;
     /* Método para reportar error léxico */
     private void errorLexico(String mensaje) {
         erroresLexicos++;
-        System.err.println("[ERROR LEXICO] Linea " + (yyline + 1) + ": " + mensaje);
+        if (!silenciarErrores) {
+            System.err.println("[ERROR LEXICO] Linea " + (yyline + 1) + ": " + mensaje);
+        }
     }
 %}
 

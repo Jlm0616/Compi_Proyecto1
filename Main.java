@@ -7,7 +7,8 @@ public class Main {
             return;
         }
 
-        
+        // ===== PRIMER LEXER - Para generar tokens.txt (SILENCIADO) =====
+        Lexer.silenciarErrores = true;
         Lexer lexerTokens = new Lexer(new FileReader(args[0]));
         PrintWriter tokenWriter = new PrintWriter(new FileWriter("tokens.txt"));
         tokenWriter.println("=== TOKENS ENCONTRADOS ===\n");
@@ -26,9 +27,15 @@ public class Main {
         tokenWriter.close();
         System.out.println("Tokens guardados en: tokens.txt");
 
-        // ===== EJECUTAR PARSER =====
+        // ===== RESETEAR CONTADORES Y REACTIVAR ERRORES =====
+        Lexer.erroresLexicos = 0;
+        Lexer.silenciarErrores = false;
+
+        // ===== SEGUNDO LEXER - Para el parser (MUESTRA ERRORES) =====
+        Lexer lexerParser = new Lexer(new FileReader(args[0]));
+        
         @SuppressWarnings("deprecation")
-        parser p = new parser(new Lexer(new FileReader(args[0])));
+        parser p = new parser(lexerParser);
         p.parse();
         
         if (parser.erroresSintacticos == 0 && Lexer.erroresLexicos == 0) {
