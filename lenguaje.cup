@@ -8,14 +8,33 @@ parser code {:
     static java.util.Stack<String> nombresAmbitos = new java.util.Stack<>();
     
     static int contadorBloques = 0;
-    static int contadorCasos = 0;
+    static int contadorSwitch = 0;
     static int contadorIf = 0;
     static int contadorElse = 0;
     static int contadorWhile = 0;
     static String nombreBloqueActual = "BLOQUE";
 
-     // Contador de errores sintácticos
+    static int switchActual = 0;
+    static int casoActual = 0;
+
+    // Contador de errores sintácticos
     public static int erroresSintacticos = 0;
+    
+    // Lista para guardar todas las tablas antes de imprimir
+    static java.util.ArrayList<AmbitoInfo> todasLasTablas = new java.util.ArrayList<>();
+    
+    // Clase para guardar la información de cada ámbito
+    static class AmbitoInfo {
+        String nombre;
+        java.util.HashMap<String, String[]> tabla;
+        int nivel;
+        
+        AmbitoInfo(String nombre, java.util.HashMap<String, String[]> tabla, int nivel) {
+            this.nombre = nombre;
+            this.tabla = tabla;
+            this.nivel = nivel;
+        }
+    }
 
     public static void pushScope(String nombre) {
         pilaTablas.push(new java.util.HashMap<>());
@@ -26,9 +45,28 @@ parser code {:
         if (!pilaTablas.isEmpty()) {
             java.util.HashMap<String, String[]> ambito = pilaTablas.pop();
             String nombre = nombresAmbitos.pop();
-            System.out.println("\n=== TABLA DE SIMBOLOS: " + nombre + " ===");
-            imprimirTabla(ambito);
+            int nivel = nombresAmbitos.size();
+            
+            // GUARDAR en lugar de imprimir
+            todasLasTablas.add(new AmbitoInfo(nombre, ambito, nivel));
         }
+    }
+    
+    // Llamar al final del programa para imprimir todo ordenado
+    public static void imprimirTodasLasTablas() {
+        // Imprimir en orden inverso (del más externo al más interno)
+        for (int i = todasLasTablas.size() - 1; i >= 0; i--) {
+            AmbitoInfo a = todasLasTablas.get(i);
+            
+            String indentacion = "";
+            for (int j = 0; j < a.nivel; j++) {
+                indentacion += "  ";
+            }
+            
+            System.out.println("\n" + indentacion + "=== TABLA DE SIMBOLOS: " + a.nombre + " ===");
+            imprimirTabla(a.tabla, indentacion + "  ");
+        }
+        todasLasTablas.clear(); // Limpiar por si acaso
     }
     
     public static void agregarSimbolo(String nombre, String tipo, int linea) {
@@ -39,15 +77,15 @@ parser code {:
         }
     }
     
-    private static void imprimirTabla(java.util.HashMap<String, String[]> tabla) {
+    private static void imprimirTabla(java.util.HashMap<String, String[]> tabla, String indentacion) {
         if (tabla.isEmpty()) {
-            System.out.println("  (sin variables)");
+            System.out.println(indentacion + "(sin variables)");
             return;
         }
-        System.out.println(String.format("%-20s %-10s %s", "Variable", "Tipo", "Linea"));
-        System.out.println(String.format("%-20s %-10s %s", "--------", "----", "-----"));
+        System.out.println(indentacion + String.format("%-20s %-10s %s", "Variable", "Tipo", "Linea"));
+        System.out.println(indentacion + String.format("%-20s %-10s %s", "--------", "----", "-----"));
         for (java.util.Map.Entry<String, String[]> e : tabla.entrySet()) {
-            System.out.println(String.format("%-20s %-10s %s", e.getKey(), e.getValue()[0], e.getValue()[1]));
+            System.out.println(indentacion + String.format("%-20s %-10s %s", e.getKey(), e.getValue()[0], e.getValue()[1]));
         }
     }
     
@@ -106,7 +144,8 @@ casoConstante ::= numero | CADENA | BOOLEANO | CARACTER ;
 programa ::= lista_funciones
              {: pushScope("GLOBAL (MAIN)"); :}
              funcion_main
-             {: popScope(); :} ;
+             {: popScope(); imprimirTodasLasTablas(); :} ;
+
 funcion_main ::= EMPTY SEPARADOR PALABRA_MAIN SEPARADOR INICIO_PARENTESIS FIN_PARENTESIS INICIO_BLOQUE contenido_programa FIN_BLOQUE ;
 contenido_programa ::= lista_sentencias ;
 
@@ -207,7 +246,7 @@ lista_sentencias ::= sentencia lista_sentencias | /* vacio */ ;
 
 if_cabeza    ::= IF INICIO_PARENTESIS expresion FIN_PARENTESIS {: contadorIf++;    nombreBloqueActual = "IF "    + contadorIf; :} ;
 else_cabeza  ::= ELSE {: contadorElse++;  nombreBloqueActual = "ELSE "  + contadorElse; :} ;
-while_cabeza ::= DO {: contadorWhile++; nombreBloqueActual = "WHILE " + contadorWhile; :} ;
+while_cabeza ::= DO {: contadorWhile++; nombreBloqueActual = "DO-WHILE " + contadorWhile; :} ;
 
 if_sentencia ::= if_cabeza bloque_simple
                | if_cabeza bloque_simple else_cabeza bloque_simple
@@ -215,7 +254,7 @@ if_sentencia ::= if_cabeza bloque_simple
 
 do_while_sentencia ::= while_cabeza bloque_simple WHILE  INICIO_PARENTESIS expresion FIN_PARENTESIS DELIMITADOR_EXP ;
 
-switch_sentencia ::= SWITCH SEPARADOR INICIO_PARENTESIS expresion FIN_PARENTESIS {: contadorCasos = 0; pushScope("SWITCH"); :} INICIO_BLOQUE lista_casos FIN_BLOQUE {: popScope(); :}
+switch_sentencia ::= SWITCH SEPARADOR INICIO_PARENTESIS expresion FIN_PARENTESIS {: contadorSwitch++; switchActual = contadorSwitch; casoActual = 0; pushScope("SWITCH " + switchActual); :} INICIO_BLOQUE lista_casos FIN_BLOQUE {: popScope(); :}
                    | SWITCH error INICIO_BLOQUE lista_casos FIN_BLOQUE           {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Switch invalido, se omite"); :};
 
 lista_casos ::= lista_caso_simple caso_default
@@ -225,10 +264,10 @@ lista_casos ::= lista_caso_simple caso_default
 lista_caso_simple ::= caso lista_caso_simple | caso ;
 
 /* punto s: ~ entre case/default y expresion/identificador */
-caso ::= CASE SEPARADOR casoConstante DOS_PUNTOS {: contadorCasos++; pushScope("CASE " + contadorCasos); :} lista_sentencias {: popScope(); :}
+caso ::= CASE SEPARADOR casoConstante DOS_PUNTOS {: casoActual++; pushScope("CASE " + switchActual + "." + casoActual); :} lista_sentencias {: popScope(); :}
        | CASE error DOS_PUNTOS lista_sentencias  {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Case invalido, se omite"); :};
 
-caso_default ::= DEFAULT DOS_PUNTOS {: pushScope("DEFAULT"); :} lista_sentencias {: popScope(); :};
+caso_default ::= DEFAULT DOS_PUNTOS {: pushScope("DEFAULT " + switchActual); :} lista_sentencias {: popScope(); :};
 
 
 /* Expresiones */
