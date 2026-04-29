@@ -9,8 +9,12 @@ parser code {:
     
     static int contadorBloques = 0;
     static int contadorCasos = 0;
-    
-    // Contador de errores sintácticos
+    static int contadorIf = 0;
+    static int contadorElse = 0;
+    static int contadorWhile = 0;
+    static String nombreBloqueActual = "BLOQUE";
+
+     // Contador de errores sintácticos
     public static int erroresSintacticos = 0;
 
     public static void pushScope(String nombre) {
@@ -77,7 +81,7 @@ non terminal programa, funcion_main, contenido_programa;
 non terminal numero;
 non terminal funcion, lista_funciones, parametros, lista_parametros, parametro, parametro_resto;
 non terminal sentencia, lista_sentencias;
-non terminal declaracion, declaracion_resto, declaracion_variable_resto, lista_valores,valor_lista;
+non terminal declaracion, declaracion_resto, declaracion_variable_resto, lista_valores, valor_lista;
 non terminal asignacion, llamada_funcion_exp, return_sentencia, break_sentencia;
 non terminal cin_sentencia, cout_sentencia, lista_escritura, elemento_escritura;
 non terminal if_sentencia, do_while_sentencia, switch_sentencia;
@@ -87,8 +91,8 @@ non terminal exp_relacional, exp_aritmetica, resto_aritmetica;
 non terminal exp_termino, resto_termino, exp_potencia, resto_potencia;
 non terminal exp_factor, valor;
 non terminal array, acceso_arreglo;
-non terminal argumentos, lista_argumentos, bloque_simple;
-non terminal casoConstante;
+non terminal argumentos, lista_argumentos, bloque_simple, bloque_inicio;
+non terminal casoConstante, if_cabeza, else_cabeza, while_cabeza;
 
 /* Reglas gramaticales */
 start with programa;
@@ -99,7 +103,7 @@ numero ::= NUMERO_ENTERO | NUMERO_FLOTANTE | NOTACION_CIENTIFICA | FRACCIONARIO 
 casoConstante ::= numero | CADENA | BOOLEANO | CARACTER ;
 
 /* Main */
-programa ::= lista_funciones 
+programa ::= lista_funciones
              {: pushScope("GLOBAL (MAIN)"); :}
              funcion_main
              {: popScope(); :} ;
@@ -126,8 +130,8 @@ parametro ::= INT    SEPARADOR IDENTIFICADOR:id parametro_resto {: agregarSimbol
             | CHAR   SEPARADOR IDENTIFICADOR:id parametro_resto {: agregarSimbolo((String)id, "char", idleft); :}
             | STRING SEPARADOR IDENTIFICADOR:id parametro_resto {: agregarSimbolo((String)id, "string", idleft); :};
 
-parametro_resto ::= /* vacio */
-                  | ASIGNACION valor;
+parametro_resto ::= /* vacio */ 
+                    | ASIGNACION valor;
 
 
 /* Argumentos */
@@ -162,57 +166,61 @@ declaracion_resto ::= declaracion_variable_resto
                     | array ASIGNACION INICIO_BLOQUE lista_valores FIN_BLOQUE DELIMITADOR_EXP;
 
 declaracion_variable_resto ::= DELIMITADOR_EXP
-                              | ASIGNACION expresion DELIMITADOR_EXP;
+            | ASIGNACION expresion DELIMITADOR_EXP;
 
 lista_valores ::= valor_lista | valor_lista COMA lista_valores;
 valor_lista ::= expresion | INICIO_BLOQUE lista_valores FIN_BLOQUE;
 
 
-/* Asignacion            */
+/* Asignacion */
 asignacion ::= IDENTIFICADOR ASIGNACION expresion DELIMITADOR_EXP
              | acceso_arreglo ASIGNACION expresion DELIMITADOR_EXP
              | IDENTIFICADOR error expresion DELIMITADOR_EXP {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)).left + ": Operador de asignacion incorrecto, se asume '<-'"); :};
 
-/* Llamada a funcion     */
+/* Llamada a funcion */
 llamada_funcion_exp ::= IDENTIFICADOR INICIO_PARENTESIS argumentos FIN_PARENTESIS ;
 
 
-/* Return y Break        */
+/* Return y Break */
 return_sentencia ::= RETURN SEPARADOR expresion DELIMITADOR_EXP
                    | RETURN error DELIMITADOR_EXP {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Expresion de retorno invalida, se asume retorno por defecto"); :};
 
 break_sentencia ::= BREAK DELIMITADOR_EXP ;
 
 
-/* cin y cout            */
+/* cin y cout */
 cin_sentencia  ::= CIN SEPARADOR IDENTIFICADOR DELIMITADOR_EXP ;
 cout_sentencia ::= COUT SEPARADOR lista_escritura DELIMITADOR_EXP
                  | COUT error DELIMITADOR_EXP {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Escritura invalida, se omite"); :};
 
-lista_escritura ::= elemento_escritura
-                  | elemento_escritura SEPARADOR lista_escritura;
+lista_escritura ::= elemento_escritura 
+                    | elemento_escritura SEPARADOR lista_escritura;
 
 elemento_escritura ::= IDENTIFICADOR | numero | CADENA | BOOLEANO | CARACTER | acceso_arreglo ;
 
 
-/* Bloques               */
-bloque_simple ::= INICIO_BLOQUE {: contadorBloques++; pushScope("BLOQUE " + contadorBloques); :} lista_sentencias FIN_BLOQUE {: popScope(); :};
+/* Bloques */
+bloque_inicio ::= INICIO_BLOQUE {: pushScope(nombreBloqueActual); nombreBloqueActual = "BLOQUE"; :} ;
+bloque_simple ::= bloque_inicio lista_sentencias FIN_BLOQUE {: popScope(); :};
 lista_sentencias ::= sentencia lista_sentencias | /* vacio */ ;
 
 
-/* Estructuras de control*/
-if_sentencia ::= IF INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple
-               | IF INICIO_PARENTESIS expresion FIN_PARENTESIS bloque_simple ELSE bloque_simple
+if_cabeza    ::= IF INICIO_PARENTESIS expresion FIN_PARENTESIS {: contadorIf++;    nombreBloqueActual = "IF "    + contadorIf; :} ;
+else_cabeza  ::= ELSE {: contadorElse++;  nombreBloqueActual = "ELSE "  + contadorElse; :} ;
+while_cabeza ::= DO {: contadorWhile++; nombreBloqueActual = "WHILE " + contadorWhile; :} ;
+
+if_sentencia ::= if_cabeza bloque_simple
+               | if_cabeza bloque_simple else_cabeza bloque_simple
                | IF error bloque_simple {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Condicion de if invalida, se asume verdadero"); :};
 
-do_while_sentencia ::= DO bloque_simple WHILE  INICIO_PARENTESIS expresion FIN_PARENTESIS DELIMITADOR_EXP ;
+do_while_sentencia ::= while_cabeza bloque_simple WHILE  INICIO_PARENTESIS expresion FIN_PARENTESIS DELIMITADOR_EXP ;
 
 switch_sentencia ::= SWITCH SEPARADOR INICIO_PARENTESIS expresion FIN_PARENTESIS {: contadorCasos = 0; pushScope("SWITCH"); :} INICIO_BLOQUE lista_casos FIN_BLOQUE {: popScope(); :}
                    | SWITCH error INICIO_BLOQUE lista_casos FIN_BLOQUE           {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Switch invalido, se omite"); :};
 
 lista_casos ::= lista_caso_simple caso_default
-              | lista_caso_simple
-              | caso_default;
+                | lista_caso_simple
+                | caso_default;
 
 lista_caso_simple ::= caso lista_caso_simple | caso ;
 
@@ -223,7 +231,7 @@ caso ::= CASE SEPARADOR casoConstante DOS_PUNTOS {: contadorCasos++; pushScope("
 caso_default ::= DEFAULT DOS_PUNTOS {: pushScope("DEFAULT"); :} lista_sentencias {: popScope(); :};
 
 
-/* Expresiones           */
+/* Expresiones */
 operador_relacional ::= EQUAL | N_EQUAL | LESS_T | LESS_TE | GREATER_T | GREATER_TE ;
 
 expresion ::= exp_logica ;
@@ -239,8 +247,8 @@ exp_relacional ::= operador_relacional INICIO_PARENTESIS exp_aritmetica COMA exp
 /* punto g: suma y resta */
 exp_aritmetica ::= exp_termino resto_aritmetica ;
 resto_aritmetica ::= MAS   exp_termino resto_aritmetica
-                   | MENOS exp_termino resto_aritmetica
-                   | /* vacio */;
+                    | MENOS exp_termino resto_aritmetica 
+                        | /* vacio */;
 
 exp_termino ::= exp_factor resto_termino ;
 resto_termino ::= MULTIPLICACION exp_factor resto_termino
@@ -272,7 +280,7 @@ valor ::= numero
         | INICIO_PARENTESIS exp_logica FIN_PARENTESIS;
 
 
-/* Arreglos              */
+/* Arreglos */
 array ::= INICIO_INDICE expresion FIN_INDICE
         | INICIO_INDICE expresion FIN_INDICE INICIO_INDICE expresion FIN_INDICE;
 
