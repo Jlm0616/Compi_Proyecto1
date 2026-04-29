@@ -1,9 +1,262 @@
-empty ~ __main__ ~ <| |> |:
-    int ~ x <- 10 !
-    
-    if <| x > 5 |  
-        cout ~ "Hola" !
+{- ============================================ -}
+{- Programa completo de prueba - Sistema Tienda -}
+{- ============================================ -}
+
+{- Funcion: calcula el total con impuesto -}
+float ~ calcularTotal <| float ~ precio, int ~ cantidad, float ~ impuesto |> |:
+    float ~ subtotal <- precio * cantidad !
+    float ~ montoImpuesto <- subtotal * impuesto !
+    float ~ total <- subtotal + montoImpuesto !
+    return ~ total !
+:|
+
+{- Funcion: verifica si un numero es par -}
+bool ~ esPar <| int ~ numero |> |:
+    int ~ residuo <- numero % 2 !
+    bool ~ resultado <- equal <| residuo, 0 |> !
+    return ~ resultado !
+:|
+
+{- Funcion: calcula el maximo de dos enteros -}
+int ~ maximo <| int ~ a, int ~ b |> |:
+    int ~ max <- a !
+    if <| greather_t <| b, a |> |> |:
+        max <- b !
     :|
-    
-    cout ~ "Fin" !
+    return ~ max !
+:|
+
+{- Funcion: clasifica una nota -}
+string ~ clasificarNota <| int ~ nota |> |:
+    string ~ categoria <- "Desconocido" !
+    if <| greather_te <| nota, 90 |> |> |:
+        categoria <- "Excelente" !
+    :| else |:
+        if <| greather_te <| nota, 75 |> |> |:
+            categoria <- "Bueno" !
+        :| else |:
+            if <| greather_te <| nota, 60 |> |> |:
+                categoria <- "Regular" !
+            :| else |:
+                categoria <- "Reprobado" !
+            :|
+        :|
+    :|
+    return ~ categoria !
+:|
+
+{- Funcion: suma elementos de un arreglo -}
+int ~ sumarArreglo <| int ~ arr<<5>>, int ~ tam |> |:
+    int ~ suma <- 0 !
+    int ~ i <- 0 !
+    do |:
+        suma <- suma + arr<<i>> !
+        i <- ++i !
+    :| while <| less_t <| i, tam |> |> !
+    return ~ suma !
+:|
+
+{- Funcion: busca un valor en arreglo -}
+bool ~ buscarEnArreglo <| int ~ arr<<10>>, int ~ tam, int ~ objetivo |> |:
+    int ~ j <- 0 !
+    bool ~ encontrado <- false !
+    do |:
+        if <| equal <| arr<<j>>, objetivo |> |> |:
+            encontrado <- true !
+        :|
+        j <- ++j !
+    :| while <| less_t <| j, tam |> |> !
+    return ~ encontrado !
+:|
+
+{- Funcion: calcula factorial de n -}
+int ~ factorial <| int ~ n |> |:
+    int ~ resultado <- 1 !
+    int ~ k <- 1 !
+    do |:
+        resultado <- resultado * k !
+        k <- ++k !
+    :| while <| less_te <| k, n |> |> !
+    return ~ resultado !
+:|
+
+{- ============ MAIN ============ -}
+ empty  ~ __main__ ~ <| |> |:
+
+    {- === Variables basicas === -}
+    int ~ edad <- 25 !
+    float ~ salario <- 1500.75 !
+    bool ~ activo <- true !
+    char ~ inicial <- 'A' !
+    string ~ nombre <- "Carlos" !
+    string ~ apellido <- "Gomez" !
+    float ~ descuento <- 0.15 !
+    int ~ cantidadProductos <- 10 !
+    int ~ codigoProducto <- 3 !
+    float ~ precioUnitario <- 49.99 !
+
+    {- === Arreglos 1D === -}
+    int ~ notas<<5>> !
+    int ~ codigos<<10>> !
+    float ~ precios<<3>> !
+
+    {- === Asignacion manual de arreglos === -}
+    notas<<0>> <- 85 !
+    notas<<1>> <- 92 !
+    notas<<2>> <- 78 !
+    notas<<3>> <- 60 !
+    notas<<4>> <- 95 !
+
+    codigos<<0>> <- 1 !
+    codigos<<1>> <- 2 !
+    codigos<<2>> <- 3 !
+    codigos<<3>> <- 4 !
+    codigos<<4>> <- 5 !
+    codigos<<5>> <- 6 !
+    codigos<<6>> <- 7 !
+    codigos<<7>> <- 8 !
+    codigos<<8>> <- 9 !
+    codigos<<9>> <- 10 !
+
+    precios<<0>> <- 10.5 !
+    precios<<1>> <- 20.0 !
+    precios<<2>> <- 35.75 !
+
+    {- === Operaciones basicas === -}
+    int ~ suma <- edad + cantidadProductos !
+    float ~ totalVenta <- calcularTotal <| precioUnitario, cantidadProductos, descuento |> !
+    int ~ maxi <- maximo <| edad, cantidadProductos |> !
+    bool ~ paridad <- esPar <| edad |> !
+    int ~ sumaNotas <- sumarArreglo <| notas, 5 |> !
+    int ~ fact5 <- factorial <| 5 |> !
+
+    {- === Salida de datos === -}
+    cout ~ "=== SISTEMA DE TIENDA ===" !
+    cout ~ nombre !
+    cout ~ apellido !
+    cout ~ edad !
+    cout ~ salario !
+    cout ~ totalVenta !
+    cout ~ sumaNotas !
+    cout ~ fact5 !
+
+    {- === Entrada de datos === -}
+    cin ~ codigoProducto !
+    cin ~ edad !
+
+    {- === IF ELSE con operador @ (AND) === -}
+    if <| activo @ greather_te <| salario, 1000.0 |> |> |:
+        cout ~ "Empleado activo con buen salario" !
+    :| else |:
+        cout ~ "Empleado inactivo o salario bajo" !
+    :|
+
+    {- === IF con operador # (OR) === -}
+    if <| paridad # activo |> |:
+        cout ~ "Es par O esta activo" !
+    :|
+
+    {- === IF con operador $ (NOT) === -}
+    if <| $activo |> |:
+        cout ~ "Empleado no activo" !
+    :| else |:
+        cout ~ "Empleado activo confirmado" !
+    :|
+
+    {- === DO WHILE recorriendo arreglo === -}
+    int ~ contador <- 0 !
+    int ~ acumulador <- 0 !
+    do |:
+        acumulador <- acumulador + notas<<contador>> !
+        cout ~ notas<<contador>> !
+        contador <- ++contador !
+    :| while <| less_t <| contador, 5 |> |> !
+    cout ~ acumulador !
+
+    {- === DO WHILE con decremento === -}
+    int ~ regresivo <- 10 !
+    do |:
+        cout ~ regresivo !
+        regresivo <- --regresivo !
+    :| while <| greather_t <| regresivo, 0 |> |> !
+
+    {- === SWITCH con varios casos === -}
+    switch ~ <| codigoProducto |> |:
+        case ~ 1 :
+            string ~ prod1 <- "Laptop" !
+            float ~ precio1 <- 899.99 !
+            cout ~ prod1 !
+            cout ~ precio1 !
+            break !
+        case ~ 2 :
+            string ~ prod2 <- "Monitor" !
+            float ~ precio2 <- 349.50 !
+            cout ~ prod2 !
+            cout ~ precio2 !
+            break !
+        case ~ 3 :
+            string ~ prod3 <- "Teclado" !
+            float ~ precio3 <- 79.99 !
+            cout ~ prod3 !
+            cout ~ precio3 !
+            break !
+        case ~ 4 :
+            string ~ prod4 <- "Mouse" !
+            float ~ precio4 <- 39.99 !
+            cout ~ prod4 !
+            cout ~ precio4 !
+            break !
+        case ~ 5 :
+            string ~ prod5 <- "Audifonos" !
+            float ~ precio5 <- 59.99 !
+            cout ~ prod5 !
+            cout ~ precio5 !
+            break !
+        default :
+            cout ~ "Codigo no reconocido" !
+    :|
+
+    {- === Clasificacion de notas === -}
+    int ~ indiceNota <- 0 !
+    do |:
+        string ~ categoria <- clasificarNota <| notas<<indiceNota>> |> !
+        cout ~ notas<<indiceNota>> !
+        cout ~ categoria !
+        indiceNota <- ++indiceNota !
+    :| while <| less_t <| indiceNota, 5 |> |> !
+
+    {- === Busqueda en arreglo === -}
+    bool ~ existe <- buscarEnArreglo <| codigos, 10, codigoProducto |> !
+    if <| existe |> |:
+        cout ~ "Codigo encontrado" !
+    :| else |:
+        cout ~ "Codigo no encontrado" !
+    :|
+
+    {- === Potencia y modulo === -}
+    float ~ resultado <- 2.0 ^ 8.0 !
+    int ~ modResult <- edad % cantidadProductos !
+    cout ~ resultado !
+    cout ~ modResult !
+
+    {- === Notacion cientifica y fraccionario === -}
+    float ~ notCient <- 2e10 !
+    float ~ frac <- 3//4 !
+    cout ~ notCient !
+    cout ~ frac !
+
+    {- === Arreglo 2D === -}
+    int ~ matriz<<2>><<3>> !
+    matriz<<0>><<0>> <- 1 !
+    matriz<<0>><<1>> <- 2 !
+    matriz<<0>><<2>> <- 3 !
+    matriz<<1>><<0>> <- 4 !
+    matriz<<1>><<1>> <- 5 !
+    matriz<<1>><<2>> <- 6 !
+    int ~ elemento <- matriz<<0>><<1>> !
+    cout ~ elemento !
+    matriz<<1>><<2>> <- 99 !
+    cout ~ matriz<<1>><<2>> !
+
+    cout ~ "=== FIN DEL PROGRAMA ===" !
 :|
