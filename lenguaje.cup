@@ -255,7 +255,7 @@ if_sentencia ::= if_cabeza bloque_simple
 do_while_sentencia ::= while_cabeza bloque_simple WHILE  INICIO_PARENTESIS expresion FIN_PARENTESIS DELIMITADOR_EXP ;
 
 switch_sentencia ::= SWITCH SEPARADOR INICIO_PARENTESIS expresion FIN_PARENTESIS {: contadorSwitch++; switchActual = contadorSwitch; casoActual = 0; pushScope("SWITCH " + switchActual); :} INICIO_BLOQUE lista_casos FIN_BLOQUE {: popScope(); :}
-                   | SWITCH error INICIO_BLOQUE lista_casos FIN_BLOQUE           {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Switch invalido, se omite"); :};
+                   | SWITCH error INICIO_BLOQUE lista_casos FIN_BLOQUE {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Switch invalido, se omite"); :};
 
 lista_casos ::= lista_caso_simple caso_default
                 | lista_caso_simple
@@ -264,10 +264,10 @@ lista_casos ::= lista_caso_simple caso_default
 lista_caso_simple ::= caso lista_caso_simple | caso ;
 
 /* punto s: ~ entre case/default y expresion/identificador */
-caso ::= CASE SEPARADOR casoConstante DOS_PUNTOS {: casoActual++; pushScope("CASE " + switchActual + "." + casoActual); :} lista_sentencias {: popScope(); :}
+caso ::= CASE SEPARADOR casoConstante DOS_PUNTOS {: casoActual++; :} lista_sentencias 
        | CASE error DOS_PUNTOS lista_sentencias  {: System.err.println("[RECUPERACION] Linea " + ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left + ": Case invalido, se omite"); :};
 
-caso_default ::= DEFAULT DOS_PUNTOS {: pushScope("DEFAULT " + switchActual); :} lista_sentencias {: popScope(); :};
+caso_default ::= DEFAULT DOS_PUNTOS lista_sentencias ;
 
 
 /* Expresiones */
